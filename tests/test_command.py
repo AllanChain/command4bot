@@ -5,7 +5,9 @@ from commandbot import CommandsManager
 
 @pytest.fixture(scope='class')
 def basic_mgr():
-    basic_mgr = CommandsManager(command_needs_blacklist=('message', 'payload'))
+    basic_mgr = CommandsManager(
+        command_needs_blacklist=('message', 'payload')
+    )
 
     @basic_mgr.setup
     def ws():

@@ -31,9 +31,9 @@ def split_keyword(content):
 
 
 def flex_decorator(
-    deco_factory: Callable[..., Decorator]
-) -> Union[Callable[..., Decorator], Decorator]:
-    def flex_deco(self, *args, **kargs) -> Union[Decorator, F]:
+    deco_factory: Callable[..., Callable[[F], F]]
+) -> Union[Callable[..., Callable[[F], F]], Callable[[F], F]]:
+    def flex_deco(self, *args, **kargs) -> Union[Callable[[F], F], F]:
         # called as decorator
         if not kargs and len(args) == 1 and callable(args[0]):
             return deco_factory(self)(args[0])
@@ -234,24 +234,26 @@ class Setup:
 
 
 class SetupRegistry:
+    _reg: Dict[str, Setup]
+
     def __init__(self):
         self._reg = {}
 
-    def register(self, setup):
+    def register(self, setup: Setup):
         if setup.name in self._reg:
             raise ValueError("Command name duplicate")
 
         self._reg[setup.name] = setup
 
-    def get(self, setup_name):
+    def get(self, setup_name: str) -> Setup:
         return self._reg[setup_name]
 
-    def check_command(self, command):
+    def check_command(self, command: Command) -> None:
         for needed in command.needs:
             if needed not in self._reg:
                 raise ValueError(f'Unrecognized parameter "{needed}"')
 
-    def update_reference(self, command, increase=True):
+    def update_reference(self, command: Command, increase: bool = True):
         for needed in command.needs:
             setup = self._reg[needed]
             setup.reference_count += 1 if increase else -1

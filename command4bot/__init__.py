@@ -1,21 +1,19 @@
-from inspect import signature, isgenerator
-from difflib import get_close_matches
-from textwrap import dedent
 from collections import defaultdict
-
+from difflib import get_close_matches
+from inspect import isgenerator, signature
+from textwrap import dedent
 from typing import Callable
 
-
-TEXT_GENERAL_RESPONSE = 'Get!'
-TEXT_HELP_HINT = 'Help:'
-TEXT_POSSIBLE_COMMAND = 'Possible:'
-TEXT_COMMAND_CLOSED = 'CLOSED'
+TEXT_GENERAL_RESPONSE = "Get!"
+TEXT_HELP_HINT = "Help:"
+TEXT_POSSIBLE_COMMAND = "Possible:"
+TEXT_COMMAND_CLOSED = "CLOSED"
 
 
 def split_keyword(content):
-    split_st = content.split(' ', 1)
+    split_st = content.split(" ", 1)
     if len(split_st) == 1:
-        return split_st[0], ''
+        return split_st[0], ""
     return split_st
 
 
@@ -38,8 +36,8 @@ class FallbackRegistry:
     def register(self, fallback_func, priority):
         if self._sorted is not None:
             raise ValueError(
-                'Cannot append fallback functions to registry'
-                'because FallbackRegistry is frozen'
+                "Cannot append fallback functions to registry"
+                "because FallbackRegistry is frozen"
             )
         self._reg[priority].append(fallback_func)
 
@@ -61,8 +59,8 @@ class Command:
         command_func,
         keywords,
         groups,
-        parameter_blacklist=('self',),
-        needs_blacklist=('payload',),
+        parameter_blacklist=("self",),
+        needs_blacklist=("payload",),
     ):
         self.command_func = command_func
         self.name = command_func.__name__
@@ -72,12 +70,10 @@ class Command:
         self.needs = []
 
         if self.__doc__ is None:
-            self.help = (
-                '/'.join(self.keywords) + ' ' + command_func.__name__
-            )
+            self.help = "/".join(self.keywords) + " " + command_func.__name__
         else:
             self.help = dedent(command_func.__doc__).strip()
-        self.brief_help = '- ' + self.help.split('\n', 1)[0]
+        self.brief_help = "- " + self.help.split("\n", 1)[0]
 
         for parameter in signature(command_func).parameters:
             if parameter not in parameter_blacklist:
@@ -145,7 +141,7 @@ class SetupRegistry:
 
     def register(self, setup):
         if setup.name in self._reg:
-            raise ValueError('Command name duplicate')
+            raise ValueError("Command name duplicate")
 
         self._reg[setup.name] = setup
 
@@ -207,8 +203,8 @@ class CommandsManager:
         setup_reg=None,
         command_reg=None,
         fallback_reg=None,
-        command_parameter_blacklist: tuple = ('self',),
-        command_needs_blacklist: tuple = ('payload',),
+        command_parameter_blacklist: tuple = ("self",),
+        command_needs_blacklist: tuple = ("payload",),
     ):
         self.setup_reg = setup_reg or SetupRegistry()
         self.command_reg = command_reg or CommandRegistry()
@@ -275,16 +271,16 @@ class CommandsManager:
         return deco
 
     def help_with_similar(self, content):
-        'Will be wrapped as fallback in __init__'
+        "Will be wrapped as fallback in __init__"
 
         keyword, _ = split_keyword(content)
         # get command not found help message
         helps = self.get_possible_keywords_help(keyword)
         # No similar commands found
         if not helps:
-            return '\n'.join((TEXT_GENERAL_RESPONSE, TEXT_HELP_HINT))
+            return "\n".join((TEXT_GENERAL_RESPONSE, TEXT_HELP_HINT))
         # print similar commands
-        return '\n'.join(
+        return "\n".join(
             (TEXT_GENERAL_RESPONSE, TEXT_POSSIBLE_COMMAND, *helps)
         )
 

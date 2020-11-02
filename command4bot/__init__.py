@@ -2,10 +2,11 @@ from collections import defaultdict
 from difflib import get_close_matches
 from inspect import isgenerator, signature
 from textwrap import dedent
-from typing import Any, Callable, Iterable, Tuple, TypeVar, Union
+from typing import Any, Callable, Iterable, List, Optional, TypeVar, Union
 
-F = TypeVar("F", bound=Callable[..., Any])
-Decorator = TypeVar("Decorator", bound=Callable[[F], F])
+Function = Callable[..., Any]
+F = TypeVar("F", bound=Function)
+Decorator = Callable[[F], F]
 
 TEXT_GENERAL_RESPONSE = "Get!"
 TEXT_HELP_HINT = "Help:"
@@ -34,7 +35,10 @@ def flex_decorator(
 
 
 class FallbackRegistry:
-    def __init__(self):
+    _reg: defaultdict
+    _sorted: Optional[List[Function]]
+
+    def __init__(self) -> None:
         self._reg = defaultdict(list)
         self._sorted = None
 
@@ -46,7 +50,7 @@ class FallbackRegistry:
             )
         self._reg[priority].append(fallback_func)
 
-    def __iter__(self) -> Iterable[F]:
+    def all(self) -> List[Function]:
         if self._sorted is None:
             self._sorted = list(
                 func
@@ -55,18 +59,18 @@ class FallbackRegistry:
                 )
                 for func in funcs
             )
-        return iter(self._sorted)
+        return self._sorted
 
 
 class Command:
     def __init__(
         self,
         command_func: F,
-        keywords: Tuple,
-        groups,
-        parameter_blacklist=("self",),
-        needs_blacklist=("payload",),
-    ):
+        keywords: Iterable[str],
+        groups: Iterable[str],
+        parameter_blacklist: Iterable[str] = ("self",),
+        needs_blacklist: Iterable[str] = ("payload",),
+    ) -> None:
         self.command_func = command_func
         self.name = command_func.__name__
         self.keywords = keywords
@@ -86,7 +90,7 @@ class Command:
                 if parameter not in needs_blacklist:
                     self.needs.append(parameter)
 
-    def __call__(self, payload, **kargs):
+    def __call__(self, payload: str, **kargs: Any) -> Any:
         return self.command_func(
             payload,
             **{k: v for k, v in kargs.items() if k in self.parameters},
@@ -164,7 +168,7 @@ class SetupRegistry:
 
 
 class Setup:
-    def __init__(self, setup_func: Callable, enable_cache=True):
+    def __init__(self, setup_func: F, enable_cache: bool = True) -> None:
         self.is_cached = False
         self.cached_value = None
         self.cached_generator = None
@@ -174,7 +178,7 @@ class Setup:
         self.name = setup_func.__name__
 
     @property
-    def value(self):
+    def value(self) -> Any:
         if self.is_cached:
             return self.cached_value
 
@@ -190,7 +194,7 @@ class Setup:
 
         return result
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         if self.is_cached:
             if self.cached_generator is not None:
                 try:
@@ -208,8 +212,8 @@ class CommandsManager:
         setup_reg=None,
         command_reg=None,
         fallback_reg=None,
-        command_parameter_blacklist: tuple = ("self",),
-        command_needs_blacklist: tuple = ("payload",),
+        command_parameter_blacklist: Iterable[str] = ("self",),
+        command_needs_blacklist: Iterable[str] = ("payload",),
     ):
         self.setup_reg = setup_reg or SetupRegistry()
         self.command_reg = command_reg or CommandRegistry()
@@ -219,7 +223,7 @@ class CommandsManager:
         self.command_parameter_blacklist = command_parameter_blacklist
         self.command_needs_blacklist = command_needs_blacklist
 
-    def exec(self, content, **kargs):
+    def exec(self, content: str, **kargs) -> Optional[str]:
         keyword, payload = split_keyword(content)
         command = self.command_reg.get(keyword)
         if command is not None:
@@ -236,30 +240,33 @@ class CommandsManager:
             )
             return command(payload=payload, **func_args)
 
-        for fallback_func in self.fallback_reg:
+        for fallback_func in self.fallback_reg.all():
             result = fallback_func(content)
             if result is not None:
                 return result
+        return None
 
     @flex_decorator
-    def setup(self, priority=10):
-        def deco(setup_func):
-            self.setup_reg.register(Setup(setup_func, priority))
+    def setup(self) -> Decorator:
+        def deco(setup_func: F) -> F:
+            self.setup_reg.register(Setup(setup_func))
             return setup_func
 
         return deco
 
     @flex_decorator
-    def fallback(self, priority=10):
-        def deco(fallback_func):
+    def fallback(self, priority: int = 10) -> Decorator:
+        def deco(fallback_func: F) -> F:
             self.fallback_reg.register(fallback_func, priority)
             return fallback_func
 
         return deco
 
     @flex_decorator
-    def command(self, keywords=None, groups=None):
-        def deco(command_func):
+    def command(
+        self, keywords: Iterable[str] = None, groups: Iterable[str] = None
+    ) -> Decorator:
+        def deco(command_func: F) -> F:
             command = Command(
                 command_func,
                 keywords or [command_func.__name__],
@@ -275,7 +282,7 @@ class CommandsManager:
 
         return deco
 
-    def help_with_similar(self, content):
+    def help_with_similar(self, content: str) -> str:
         "Will be wrapped as fallback in __init__"
 
         keyword, _ = split_keyword(content)
@@ -289,7 +296,10 @@ class CommandsManager:
             (TEXT_GENERAL_RESPONSE, TEXT_POSSIBLE_COMMAND, *helps)
         )
 
-    def get_possible_keywords_help(self, keyword):
+    def get_possible_keywords_help(
+        self, keyword: str
+    ) -> Optional[Iterable[str]]:
         command_matches = self.command_reg.get_similar_commands(keyword)
         if command_matches:
             return (command.brief_help for command in command_matches)
+        return None

@@ -83,6 +83,7 @@ class Command:
         command_func: Function,
         keywords: Iterable[str],
         groups: Iterable[str],
+        default_closed: bool,
         parameter_blacklist: Iterable[str] = ("self",),
         needs_blacklist: Iterable[str] = ("payload",),
     ) -> None:
@@ -90,6 +91,7 @@ class Command:
         self.name = command_func.__name__
         self.keywords = keywords
         self.groups = groups
+        self.default_closed = default_closed
         self.parameters = []
         self.needs = []
 
@@ -156,6 +158,9 @@ class CommandRegistry(BaseCommandRegistry):
         self._groups[command.name] = [command]
         for group_name in command.groups:
             self._groups[group_name].append(command)
+
+        if command.default_closed:
+            self.set_status(command.name, False)
 
     def get_status(self, name: str) -> bool:
         return self._status.get(name, True)
@@ -316,13 +321,17 @@ class CommandsManager:
 
     @flex_decorator
     def command(
-        self, keywords: Iterable[str] = None, groups: Iterable[str] = None
+        self,
+        keywords: Iterable[str] = None,
+        groups: Iterable[str] = None,
+        default_closed: bool = False,
     ) -> Decorator:
         def deco(command_func: F) -> F:
             command = Command(
                 command_func,
                 keywords or [command_func.__name__],
                 groups or [],
+                default_closed,
                 parameter_blacklist=self.command_parameter_blacklist,
                 needs_blacklist=self.command_needs_blacklist,
             )

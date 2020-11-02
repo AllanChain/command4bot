@@ -1,5 +1,6 @@
 import pytest
-from commandbot import CommandsManager
+
+from command4bot import CommandsManager
 
 
 @pytest.fixture(scope="class")

@@ -2,7 +2,16 @@ from collections import defaultdict
 from difflib import get_close_matches
 from inspect import isgenerator, signature
 from textwrap import dedent
-from typing import Any, Callable, Iterable, List, Optional, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    TypeVar,
+    Union,
+)
 
 Function = Callable[..., Any]
 F = TypeVar("F", bound=Function)
@@ -63,9 +72,15 @@ class FallbackRegistry:
 
 
 class Command:
+    name: str
+    keywords: Iterable[str]
+    groups: Iterable[str]
+    needs: Iterable[str]
+    parameters: Iterable[str]
+
     def __init__(
         self,
-        command_func: F,
+        command_func: Function,
         keywords: Iterable[str],
         groups: Iterable[str],
         parameter_blacklist: Iterable[str] = ("self",),
@@ -98,6 +113,8 @@ class Command:
 
 
 class BaseCommandRegistry:
+    _reg: Dict[str, Command]
+
     def __init__(self):
         self._reg = {}
 
@@ -105,10 +122,10 @@ class BaseCommandRegistry:
         for keyword in command.keywords:
             self._reg[keyword] = command
 
-    def get(self, keyword):
+    def get(self, keyword: str):
         return self._reg.get(keyword)
 
-    def get_similar_commands(self, keyword):
+    def get_similar_commands(self, keyword: str):
         return (
             self._reg[match]
             for match in get_close_matches(keyword, self._reg.keys())
@@ -126,45 +143,50 @@ class BaseCommandRegistry:
 
 
 class CommandRegistry(BaseCommandRegistry):
+    _groups: defaultdict
+
     def __init__(self):
         super().__init__()
         self._status = {}
+        self._groups = defaultdict(list)
 
-    def get_status(self, name: str):
+    def register(self, command: Command) -> None:
+        super().register(command)
+
+        self._groups[command.name] = [command]
+        for group_name in command.groups:
+            self._groups[group_name].append(command)
+
+    def get_status(self, name: str) -> bool:
         return self._status.get(name, True)
 
-    def set_status(self, name: str, status: bool):
+    def set_status(self, name: str, status: bool) -> None:
         self._status[name] = status
 
-    def resolve_command_status(self, command):
+    def resolve_command_status(self, command: Command) -> bool:
         if not self.get_status(command.name):
             return False
         return all(
             self.get_status(group_name) for group_name in command.groups
         )
 
+    def get_commands_will_open(self, name: str) -> Iterable[Command]:
+        return [
+            command
+            for command in self._groups[name]
+            if all(
+                self.get_status(group_name)
+                for group_name in [command.name, *command.groups]
+                if group_name != name
+            )
+        ]
 
-class SetupRegistry:
-    def __init__(self):
-        self._reg = {}
-
-    def register(self, setup):
-        if setup.name in self._reg:
-            raise ValueError("Command name duplicate")
-
-        self._reg[setup.name] = setup
-
-    def get(self, setup_name):
-        return self._reg[setup_name]
-
-    def check_command(self, command):
-        for needed in command.needs:
-            if needed not in self._reg:
-                raise ValueError(f'Unrecognized parameter "{needed}"')
-
-    def update_reference(self, command, increase=True):
-        for needed in command.needs:
-            self._reg[needed].reference_count += 1 if increase else -1
+    def get_commands_will_close(self, name: str) -> Iterable[Command]:
+        return [
+            command
+            for command in self._groups[name]
+            if self.resolve_command_status(command)
+        ]
 
 
 class Setup:
@@ -204,6 +226,36 @@ class Setup:
                 self.cached_generator = None
             self.cached_value = None
             self.is_cached = False
+
+
+class SetupRegistry:
+    def __init__(self):
+        self._reg = {}
+
+    def register(self, setup):
+        if setup.name in self._reg:
+            raise ValueError("Command name duplicate")
+
+        self._reg[setup.name] = setup
+
+    def get(self, setup_name):
+        return self._reg[setup_name]
+
+    def check_command(self, command):
+        for needed in command.needs:
+            if needed not in self._reg:
+                raise ValueError(f'Unrecognized parameter "{needed}"')
+
+    def update_reference(self, command, increase=True):
+        for needed in command.needs:
+            setup = self._reg[needed]
+            setup.reference_count += 1 if increase else -1
+            if setup.reference_count == 0:
+                setup.cleanup()
+            elif setup.reference_count < 0:
+                raise ValueError(
+                    "Setup reference less than zero." "Race condition?"
+                )
 
 
 class CommandsManager:
@@ -281,6 +333,18 @@ class CommandsManager:
             return command_func
 
         return deco
+
+    def close(self, name: str) -> None:
+        command_will_close = self.command_reg.get_commands_will_close(name)
+        self.command_reg.set_status(name, False)
+        for command in command_will_close:
+            self.setup_reg.update_reference(command, False)
+
+    def open(self, name: str) -> None:
+        command_will_open = self.command_reg.get_commands_will_open(name)
+        self.command_reg.set_status(name, True)
+        for command in command_will_open:
+            self.setup_reg.update_reference(command, True)
 
     def help_with_similar(self, content: str) -> str:
         "Will be wrapped as fallback in __init__"

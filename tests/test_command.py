@@ -11,7 +11,7 @@ def basic_mgr():
     def ws():
         ws_client = {"content": "abc"}
         yield ws_client
-        print("tear down")
+        print("ws tear down")
 
     @basic_mgr.command
     def hello(payload, message):
@@ -34,3 +34,9 @@ class TestBasicUsage:
 
     def test_fallback(self, basic_mgr):
         assert "send" in basic_mgr.exec("sed")
+
+    def test_close(self, basic_mgr, capsys):
+        basic_mgr.close("send")
+        captured = capsys.readouterr()
+        assert "ws tear down" in captured.out
+        assert basic_mgr.exec("send") == "CLOSED"

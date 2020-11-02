@@ -2,7 +2,10 @@ from collections import defaultdict
 from difflib import get_close_matches
 from inspect import isgenerator, signature
 from textwrap import dedent
-from typing import Callable
+from typing import Any, Callable, Iterable, Tuple, TypeVar, Union
+
+F = TypeVar("F", bound=Callable[..., Any])
+Decorator = TypeVar("Decorator", bound=Callable[[F], F])
 
 TEXT_GENERAL_RESPONSE = "Get!"
 TEXT_HELP_HINT = "Help:"
@@ -17,13 +20,15 @@ def split_keyword(content):
     return split_st
 
 
-def flex_decorator(deco):
-    def flex_deco(self, *args, **kargs):
+def flex_decorator(
+    deco_factory: Callable[..., Decorator]
+) -> Union[Callable[..., Decorator], Decorator]:
+    def flex_deco(self, *args, **kargs) -> Union[Decorator, F]:
         # called as decorator
         if not kargs and len(args) == 1 and callable(args[0]):
-            return deco(self)(args[0])
+            return deco_factory(self)(args[0])
         # else as a decorator factory
-        return deco(self, *args, **kargs)
+        return deco_factory(self, *args, **kargs)
 
     return flex_deco
 
@@ -33,7 +38,7 @@ class FallbackRegistry:
         self._reg = defaultdict(list)
         self._sorted = None
 
-    def register(self, fallback_func, priority):
+    def register(self, fallback_func: F, priority: int) -> None:
         if self._sorted is not None:
             raise ValueError(
                 "Cannot append fallback functions to registry"
@@ -41,7 +46,7 @@ class FallbackRegistry:
             )
         self._reg[priority].append(fallback_func)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[F]:
         if self._sorted is None:
             self._sorted = list(
                 func
@@ -56,8 +61,8 @@ class FallbackRegistry:
 class Command:
     def __init__(
         self,
-        command_func,
-        keywords,
+        command_func: F,
+        keywords: Tuple,
         groups,
         parameter_blacklist=("self",),
         needs_blacklist=("payload",),
@@ -69,7 +74,7 @@ class Command:
         self.parameters = []
         self.needs = []
 
-        if self.__doc__ is None:
+        if command_func.__doc__ is None:
             self.help = "/".join(self.keywords) + " " + command_func.__name__
         else:
             self.help = dedent(command_func.__doc__).strip()

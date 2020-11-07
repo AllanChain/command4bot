@@ -9,10 +9,14 @@ from typing import (
     Iterable,
     List,
     Optional,
-    TypedDict,
     TypeVar,
     Union,
 )
+
+try:
+    from typing import TypedDict
+except ImportError:
+    from typing_extensions import TypedDict
 
 Function = Callable[..., Any]
 F = TypeVar("F", bound=Function)

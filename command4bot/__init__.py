@@ -116,13 +116,28 @@ class Command:
 
 class BaseCommandRegistry:
     _reg: Dict[str, Command]
+    _groups: defaultdict
 
     def __init__(self):
         self._reg = {}
+        self._groups = defaultdict(list)
 
     def register(self, command: Command):
         for keyword in command.keywords:
+            if keyword in self._reg:
+                raise ValueError(f'Duplicated command keyword: "{keyword}"')
             self._reg[keyword] = command
+
+        if command.name in self._groups:
+            raise ValueError(f'Duplicated command name: "{command.name}"')
+        self._groups[command.name] = [command]
+
+        for group_name in command.groups:
+            # No need to check duplication here!
+            self._groups[group_name].append(command)
+
+        if command.default_closed:
+            self.set_status(command.name, False)
 
     def get(self, keyword: str):
         return self._reg.get(keyword)
@@ -139,34 +154,6 @@ class BaseCommandRegistry:
 
     def set_status(self, name: str, status: bool):
         raise NotImplementedError
-
-    def resolve_command_status(self, command: Command):
-        raise NotImplementedError
-
-
-class CommandRegistry(BaseCommandRegistry):
-    _groups: defaultdict
-
-    def __init__(self):
-        super().__init__()
-        self._status = {}
-        self._groups = defaultdict(list)
-
-    def register(self, command: Command) -> None:
-        super().register(command)
-
-        self._groups[command.name] = [command]
-        for group_name in command.groups:
-            self._groups[group_name].append(command)
-
-        if command.default_closed:
-            self.set_status(command.name, False)
-
-    def get_status(self, name: str) -> bool:
-        return self._status.get(name, True)
-
-    def set_status(self, name: str, status: bool) -> None:
-        self._status[name] = status
 
     def resolve_command_status(self, command: Command) -> bool:
         if not self.get_status(command.name):
@@ -192,6 +179,18 @@ class CommandRegistry(BaseCommandRegistry):
             for command in self._groups[name]
             if self.resolve_command_status(command)
         ]
+
+
+class CommandRegistry(BaseCommandRegistry):
+    def __init__(self):
+        super().__init__()
+        self._status = {}
+
+    def get_status(self, name: str) -> bool:
+        return self._status.get(name, True)
+
+    def set_status(self, name: str, status: bool) -> None:
+        self._status[name] = status
 
 
 class Setup:

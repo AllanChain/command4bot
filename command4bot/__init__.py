@@ -52,12 +52,12 @@ def split_keyword(content):
 def flex_decorator(
     deco_factory: Callable[..., Callable[[F], F]]
 ) -> Union[Callable[..., Callable[[F], F]], Callable[[F], F]]:
-    def flex_deco(self, *args, **kargs) -> Union[Callable[[F], F], F]:
+    def flex_deco(self, *args, **kwargs) -> Union[Callable[[F], F], F]:
         # called as decorator
-        if not kargs and len(args) == 1 and callable(args[0]):
+        if not kwargs and len(args) == 1 and callable(args[0]):
             return deco_factory(self)(args[0])
         # else as a decorator factory
-        return deco_factory(self, *args, **kargs)
+        return deco_factory(self, *args, **kwargs)
 
     return flex_deco
 
@@ -126,10 +126,10 @@ class Command:
                 if parameter not in needs_blacklist:
                     self.needs.append(parameter)
 
-    def __call__(self, payload: str, **kargs: Any) -> Any:
+    def __call__(self, payload: str, **kwargs: Any) -> Any:
         return self.command_func(
             payload,
-            **{k: v for k, v in kargs.items() if k in self.parameters},
+            **{k: v for k, v in kwargs.items() if k in self.parameters},
         )
 
 
@@ -290,7 +290,7 @@ class CommandsManager:
         command_reg=None,
         fallback_reg=None,
         config: Optional[Config] = None,
-        **kargs,
+        **kwargs,
     ):
         self.setup_reg = setup_reg or SetupRegistry()
         self.command_reg = command_reg or CommandRegistry()
@@ -298,12 +298,12 @@ class CommandsManager:
         self.fallback_reg.register(self.help_with_similar, priority=-1)
 
         self.config: Config = DEFAULT_CONFIG.copy()
-        self.config.update(kargs)  # type: ignore
+        self.config.update(kwargs)  # type: ignore
         if config:
             # python/mypy#9335
             self.config.update(config)  # type: ignore
 
-    def exec(self, content: str, **kargs) -> Optional[str]:
+    def exec(self, content: str, **kwargs) -> Optional[str]:
         keyword, payload = split_keyword(content)
         command = self.command_reg.get(keyword)
         if command is not None:
@@ -311,7 +311,7 @@ class CommandsManager:
             if not self.command_reg.resolve_command_status(command):
                 return self.config["text_command_closed"]
             # finnally call it
-            func_args = kargs.copy()
+            func_args = kwargs.copy()
             func_args.update(
                 {
                     needed: self.setup_reg.get(needed).value

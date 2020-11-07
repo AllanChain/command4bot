@@ -33,7 +33,6 @@ line-length = 79
 
 [tool.coverage.run]
 branch = true
-relative_files=true
 source = ["command4bot"]
 
 [tool.coverage.report]

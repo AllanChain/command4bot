@@ -9,6 +9,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    TypedDict,
     TypeVar,
     Union,
 )
@@ -17,10 +18,24 @@ Function = Callable[..., Any]
 F = TypeVar("F", bound=Function)
 Decorator = Callable[[F], F]
 
-TEXT_GENERAL_RESPONSE = "Get!"
-TEXT_HELP_HINT = "Help:"
-TEXT_POSSIBLE_COMMAND = "Possible:"
-TEXT_COMMAND_CLOSED = "CLOSED"
+
+class Config(TypedDict):
+    text_general_response: str
+    text_help_hint: str
+    text_possible_command: str
+    text_command_closed: str
+    command_parameter_blacklist: Iterable[str]
+    command_needs_blacklist: Iterable[str]
+
+
+DEFAULT_CONFIG: Config = {
+    "text_general_response": "Get!",
+    "text_help_hint": "Help:",
+    "text_possible_command": "Possible:",
+    "text_command_closed": "CLOSED",
+    "command_parameter_blacklist": ("self",),
+    "command_needs_blacklist": ("payload",),
+}
 
 
 def split_keyword(content):
@@ -270,16 +285,19 @@ class CommandsManager:
         setup_reg=None,
         command_reg=None,
         fallback_reg=None,
-        command_parameter_blacklist: Iterable[str] = ("self",),
-        command_needs_blacklist: Iterable[str] = ("payload",),
+        config: Optional[Config] = None,
+        **kargs,
     ):
         self.setup_reg = setup_reg or SetupRegistry()
         self.command_reg = command_reg or CommandRegistry()
         self.fallback_reg = fallback_reg or FallbackRegistry()
         self.fallback_reg.register(self.help_with_similar, priority=-1)
 
-        self.command_parameter_blacklist = command_parameter_blacklist
-        self.command_needs_blacklist = command_needs_blacklist
+        self.config: Config = DEFAULT_CONFIG.copy()
+        self.config.update(kargs)  # type: ignore
+        if config:
+            # python/mypy#9335
+            self.config.update(config)  # type: ignore
 
     def exec(self, content: str, **kargs) -> Optional[str]:
         keyword, payload = split_keyword(content)
@@ -287,7 +305,7 @@ class CommandsManager:
         if command is not None:
             # checking if command is closed
             if not self.command_reg.resolve_command_status(command):
-                return TEXT_COMMAND_CLOSED
+                return self.config["text_command_closed"]
             # finnally call it
             func_args = kargs.copy()
             func_args.update(
@@ -333,8 +351,8 @@ class CommandsManager:
                 keywords or [command_func.__name__],
                 groups or [],
                 default_closed,
-                parameter_blacklist=self.command_parameter_blacklist,
-                needs_blacklist=self.command_needs_blacklist,
+                parameter_blacklist=self.config["command_parameter_blacklist"],
+                needs_blacklist=self.config["command_needs_blacklist"],
             )
             self.command_reg.register(command)
             self.setup_reg.check_command(command)
@@ -364,10 +382,19 @@ class CommandsManager:
         helps = self.get_possible_keywords_help(keyword)
         # No similar commands found
         if not helps:
-            return "\n".join((TEXT_GENERAL_RESPONSE, TEXT_HELP_HINT))
+            return "\n".join(
+                (
+                    self.config["text_general_response"],
+                    self.config["text_help_hint"],
+                )
+            )
         # print similar commands
         return "\n".join(
-            (TEXT_GENERAL_RESPONSE, TEXT_POSSIBLE_COMMAND, *helps)
+            (
+                self.config["text_general_response"],
+                self.config["text_possible_command"],
+                *helps,
+            )
         )
 
     def get_possible_keywords_help(

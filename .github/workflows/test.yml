@@ -36,7 +36,7 @@ jobs:
         id: cache
         with:
           path: ${{ steps.poetry-cache.outputs.dir }}
-          key: ${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('poetry.lock') }}
+          key: poetry-cache-v1-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('poetry.lock') }}
           restore-keys: |
             poetry-cache-v1-
       - name: Install Requirements

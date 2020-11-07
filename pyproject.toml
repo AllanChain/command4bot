@@ -11,6 +11,7 @@ python = "^3.6.1"
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.2"
 pre-commit = "^2.8.2"
+pytest-cov = "^2.10.1"
 
 [tool.pytest.ini_options]
 testpaths = "tests"
@@ -28,6 +29,10 @@ ensure_newline_before_comments = true
 
 [tool.black]
 line-length = 79
+
+[tool.coverage.run]
+branch = true
+source = ["command4bot"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]

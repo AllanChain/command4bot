@@ -50,10 +50,3 @@ jobs:
         run: |
           poetry run pytest --cov --cov-report=xml
           bash <(curl -s https://codecov.io/bash)
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      - uses: actions/upload-artifact@v2
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8'
-        with:
-          name: coverage.xml
-          path: coverage.xml

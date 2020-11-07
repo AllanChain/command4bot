@@ -14,7 +14,7 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8]
         poetry-version: [1.1.2]
-        os: [ubuntu-18.04, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -43,6 +43,7 @@ jobs:
       - name: Run Tests
         run: poetry run pytest --cov --cov-report xml
       - name: Upload Coverage
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8'
         run: bash <(curl -s https://codecov.io/bash)
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

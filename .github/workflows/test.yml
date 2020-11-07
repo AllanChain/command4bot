@@ -43,9 +43,12 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: poetry install --no-root
       - name: Run Tests
-        run: poetry run pytest --cov --cov-report xml
-      - name: Upload Coverage
+        if: "! (matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8')"
+        run: poetry run pytest
+      - name: Run Tests with Coverage
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8'
-        run: bash <(curl -s https://codecov.io/bash)
+        run: |
+          poetry run pytest --cov --cov-report=xml
+          bash <(curl -s https://codecov.io/bash)
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

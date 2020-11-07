@@ -241,7 +241,7 @@ class SetupRegistry:
 
     def register(self, setup: Setup):
         if setup.name in self._reg:
-            raise ValueError("Command name duplicate")
+            raise ValueError(f'Setup name "{setup.name}" duplicate')
 
         self._reg[setup.name] = setup
 

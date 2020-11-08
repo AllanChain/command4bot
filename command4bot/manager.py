@@ -5,7 +5,9 @@ try:
 except ImportError:
     from typing_extensions import TypedDict
 
-from . import Command, CommandRegistry, FallbackRegistry, Setup, SetupRegistry
+from .command import Command, CommandRegistry
+from .fallback import FallbackRegistry
+from .setup import Setup, SetupRegistry
 from .typing_ext import Decorator, F
 from .utils import flex_decorator, split_keyword
 

@@ -5,7 +5,9 @@ on:
     paths-ignore:
       - '**.md'
   push:
-    branches: [master]
+    branches:
+      - master
+      - ci
     paths-ignore:
       - '**.md'
 
@@ -33,6 +35,7 @@ jobs:
           echo "::set-output name=dir::$(poetry config cache-dir)"
       - name: Cache Poetry
         uses: actions/cache@v2
+        if: matrix.os != 'windows-latest'
         id: cache
         with:
           path: ${{ steps.poetry-cache.outputs.dir }}
@@ -40,7 +43,7 @@ jobs:
           restore-keys: |
             poetry-cache-v1-
       - name: Install Requirements
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: matrix.os == 'windows-latest' || steps.cache.outputs.cache-hit != 'true'
         run: poetry install --no-root
       - name: Run Tests
         if: "! (matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8')"
@@ -49,8 +52,6 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8'
         run: |
           poetry run pytest --cov --cov-report=xml
-      - name: Upload coverage to Coveralls
+      - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8'
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        uses: codecov/codecov-action@v1

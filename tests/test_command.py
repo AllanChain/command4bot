@@ -11,14 +11,14 @@ def data_share():
 class TestBasicUsage:
     @pytest.fixture(scope="class")
     def mgr(self):
-        mgr = CommandsManager(command_needs_blacklist=("message", "payload"))
+        mgr = CommandsManager(command_needs_ignore=["message"])
 
         @mgr.command
-        def hello(payload, message):
+        def hello(message):
             return f'hello, {message["source"]}!'
 
         @mgr.command
-        def world(payload):
+        def world():
             return "world"
 
         return mgr
@@ -48,7 +48,7 @@ class TestBasicSetup:
             return {"send": lambda x: x}
 
         @mgr.command()
-        def send(payload, ws_client, ws_data):
+        def send(ws_client, ws_data):
             return ws_client["send"](ws_data["content"])
 
         return mgr
@@ -70,7 +70,7 @@ class TestGeneratorSetup:
             data_share["status"] = "done"
 
         @mgr.command(default_closed=True)
-        def post(payload, data):
+        def post(data):
             return data
 
         return mgr
@@ -109,7 +109,7 @@ class TestGeneratorSetupCleanup:
             data_share["status"] = "done"
 
         @mgr.command
-        def post(payload, data):
+        def post(data):
             return data
 
         mgr.exec("post")

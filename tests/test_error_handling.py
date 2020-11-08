@@ -11,13 +11,13 @@ def mgr():
 class TestDuplicate:
     def test_duplicate_command_name(self, mgr: CommandsManager):
         @mgr.command(("kwa",))
-        def dupcmd(payload):
+        def dupcmd():
             pass
 
         with pytest.raises(ValueError) as e_info:
 
             @mgr.command(("kwb",))
-            def dupcmd(payload):  # NOQA
+            def dupcmd():  # NOQA
                 pass
 
         e_message = e_info.value.args[0].lower()
@@ -25,13 +25,13 @@ class TestDuplicate:
 
     def test_duplicate_command_keyword(self, mgr: CommandsManager):
         @mgr.command(("kw",))
-        def cmda(payload):
+        def cmda():
             pass
 
         with pytest.raises(ValueError) as e_info:
 
             @mgr.command(("kw",))
-            def cmdb(payload):
+            def cmdb():
                 pass
 
         e_message = e_info.value.args[0].lower()

@@ -17,18 +17,20 @@ class Config(TypedDict):
     text_help_hint: str
     text_possible_command: str
     text_command_closed: str
-    command_parameter_blacklist: Iterable[str]
-    command_needs_blacklist: Iterable[str]
+    command_parameter_ignore: Iterable[str]
+    command_needs_ignore: Iterable[str]
+    command_payload_parameter: str
 
 
-DEFAULT_CONFIG: Config = {
-    "text_general_response": "Get!",
-    "text_help_hint": "Help:",
-    "text_possible_command": "Possible:",
-    "text_command_closed": "CLOSED",
-    "command_parameter_blacklist": ("self",),
-    "command_needs_blacklist": ("payload",),
-}
+DEFAULT_CONFIG = Config(
+    text_general_response="Get!",
+    text_help_hint="Help:",
+    text_possible_command="Possible:",
+    text_command_closed="CLOSED",
+    command_parameter_ignore=("self",),
+    command_needs_ignore=(),
+    command_payload_parameter="payload",
+)
 
 
 class CommandsManager:
@@ -103,8 +105,9 @@ class CommandsManager:
                 keywords or [command_func.__name__],
                 groups or [],
                 default_closed,
-                parameter_blacklist=self.config["command_parameter_blacklist"],
-                needs_blacklist=self.config["command_needs_blacklist"],
+                parameter_ignore=self.config["command_parameter_ignore"],
+                needs_ignore=self.config["command_needs_ignore"],
+                payload_parameter=self.config["command_payload_parameter"],
             )
             self.command_reg.register(command)
             self.setup_reg.check_command(command)

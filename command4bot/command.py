@@ -18,8 +18,9 @@ class Command:
         keywords: Iterable[str],
         groups: Iterable[str],
         default_closed: bool,
-        parameter_blacklist: Iterable[str] = ("self",),
-        needs_blacklist: Iterable[str] = ("payload",),
+        parameter_ignore: Iterable[str],
+        needs_ignore: Iterable[str],
+        payload_parameter: str,
     ) -> None:
         self.command_func = command_func
         self.name = command_func.__name__
@@ -35,15 +36,16 @@ class Command:
             self.help = dedent(command_func.__doc__).strip()
         self.brief_help = "- " + self.help.split("\n", 1)[0]
 
+        needs_ignore = [*needs_ignore, payload_parameter]
+
         for parameter in signature(command_func).parameters:
-            if parameter not in parameter_blacklist:
+            if parameter not in parameter_ignore:
                 self.parameters.append(parameter)
-                if parameter not in needs_blacklist:
+                if parameter not in needs_ignore:
                     self.needs.append(parameter)
 
-    def __call__(self, payload: str, **kwargs: Any) -> Any:
+    def __call__(self, **kwargs: Any) -> Any:
         return self.command_func(
-            payload,
             **{k: v for k, v in kwargs.items() if k in self.parameters},
         )
 

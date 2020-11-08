@@ -42,10 +42,10 @@ DEFAULT_CONFIG: Config = {
 }
 
 
-def split_keyword(content):
+def split_keyword(content: str) -> List[str]:
     split_st = content.split(" ", 1)
     if len(split_st) == 1:
-        return split_st[0], ""
+        return [split_st[0], ""]
     return split_st
 
 
@@ -141,7 +141,7 @@ class BaseCommandRegistry:
         self._reg = {}
         self._groups = defaultdict(list)
 
-    def register(self, command: Command):
+    def register(self, command: Command) -> None:
         for keyword in command.keywords:
             if keyword in self._reg:
                 raise ValueError(f'Duplicated command keyword: "{keyword}"')
@@ -158,20 +158,20 @@ class BaseCommandRegistry:
         if command.default_closed:
             self.set_status(command.name, False)
 
-    def get(self, keyword: str):
+    def get(self, keyword: str) -> Optional[Command]:
         return self._reg.get(keyword)
 
-    def get_similar_commands(self, keyword: str):
+    def get_similar_commands(self, keyword: str) -> Iterable[Command]:
         return (
             self._reg[match]
             for match in get_close_matches(keyword, self._reg.keys())
             if self.resolve_command_status(self._reg[match])
         )
 
-    def get_status(self, name: str):
+    def get_status(self, name: str) -> bool:
         raise NotImplementedError
 
-    def set_status(self, name: str, status: bool):
+    def set_status(self, name: str, status: bool) -> None:
         raise NotImplementedError
 
     def resolve_command_status(self, command: Command) -> bool:
@@ -257,7 +257,7 @@ class SetupRegistry:
     def __init__(self):
         self._reg = {}
 
-    def register(self, setup: Setup):
+    def register(self, setup: Setup) -> None:
         if setup.name in self._reg:
             raise ValueError(f'Setup name "{setup.name}" duplicate')
 

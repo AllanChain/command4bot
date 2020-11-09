@@ -4,7 +4,7 @@
 ![Check Code Style](https://github.com/AllanChain/command4bot/workflows/Check%20Code%20Style/badge.svg)
 [![codecov](https://codecov.io/gh/AllanChain/command4bot/branch/master/graph/badge.svg?token=RJV7MMZC5D)](https://codecov.io/gh/AllanChain/command4bot)
 
-:warning: The document is still work in progress!
+:warning: The document is still working in progress!
 
 `command4bot` is a general purpose library for command-based iteraction made for bots, with command registry, command dependency (a.k.a. `setup`), ability to enable / disable commands, fallback functions included.
 

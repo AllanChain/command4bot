@@ -32,7 +32,9 @@ class TestBasicUsage:
         assert result == "hello, source!"
 
     def test_fallback(self, mgr):
+        "This tests both two types of help and cached fallback"
         assert mgr.exec("word") == "Get!\nPossible:\n- Say world"
+        assert mgr.exec("adflj") == "Get!"
 
 
 class TestBasicSetup:

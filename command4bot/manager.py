@@ -116,12 +116,16 @@ class CommandsManager:
         return deco
 
     def close(self, name: str) -> None:
+        if not self.command_reg.get_status(name):
+            return
         command_will_close = self.command_reg.get_commands_will_close(name)
         self.command_reg.set_status(name, False)
         for command in command_will_close:
             self.setup_reg.update_reference(command, False)
 
     def open(self, name: str) -> None:
+        if self.command_reg.get_status(name):
+            return
         command_will_open = self.command_reg.get_commands_will_open(name)
         self.command_reg.set_status(name, True)
         for command in command_will_open:

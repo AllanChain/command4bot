@@ -75,3 +75,38 @@ class TestOpenClose:
 
     def test_open_command_invokable(self, mgr: CommandsManager, open_hidden):
         assert mgr.exec("hidden treasure") == "Haha! You found treasure"
+
+
+class TestOpenCloseTwice:
+    @pytest.fixture(scope="class")
+    def mgr(self):
+        mgr = CommandsManager()
+
+        @mgr.setup
+        def name():
+            return "Jack"
+
+        @mgr.setup
+        def haha():
+            return "Haha"
+
+        @mgr.command
+        def echo(payload, name):
+            return f"{name} says {payload}"
+
+        @mgr.command(default_closed=True)
+        def hidden(payload, haha):
+            return f"{haha}! You found {payload}"
+
+        mgr.open("hidden")
+        mgr.close("echo")
+
+        return mgr
+
+    def test_open_twice(self, mgr: CommandsManager):
+        mgr.open("hidden")
+        assert mgr.setup_reg.get("haha").reference_count == 1
+
+    def test_close_twice(self, mgr: CommandsManager):
+        mgr.close("echo")
+        assert mgr.setup_reg.get("name").reference_count == 0

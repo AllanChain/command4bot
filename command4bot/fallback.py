@@ -22,8 +22,8 @@ class FallbackRegistry:
         if self._sorted is None:
             self._sorted = list(
                 func
-                for funcs in sorted(
-                    self._reg.values(), key=lambda x: x[0], reverse=True
+                for _, funcs in sorted(
+                    self._reg.items(), key=lambda x: x[0], reverse=True
                 )
                 for func in funcs
             )

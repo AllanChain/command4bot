@@ -14,7 +14,6 @@ from .utils import flex_decorator, split_keyword
 
 class Config(TypedDict):
     text_general_response: str
-    text_help_hint: str
     text_possible_command: str
     text_command_closed: str
     command_parameter_ignore: Iterable[str]
@@ -24,7 +23,6 @@ class Config(TypedDict):
 
 DEFAULT_CONFIG = Config(
     text_general_response="Get!",
-    text_help_hint="Help:",
     text_possible_command="Possible:",
     text_command_closed="CLOSED",
     command_parameter_ignore=("self",),
@@ -137,12 +135,7 @@ class CommandsManager:
         helps = self.get_possible_keywords_help(keyword)
         # No similar commands found
         if not helps:
-            return "\n".join(
-                (
-                    self.config["text_general_response"],
-                    self.config["text_help_hint"],
-                )
-            )
+            return self.config["text_general_response"]
         # print similar commands
         return "\n".join(
             (

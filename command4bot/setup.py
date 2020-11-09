@@ -62,7 +62,7 @@ class SetupRegistry:
     def check_command(self, command: Command) -> None:
         for needed in command.needs:
             if needed not in self._reg:
-                raise ValueError(f'Unrecognized parameter "{needed}"')
+                raise ValueError(f'Unrecognized setup name: "{needed}"')
 
     def update_reference(self, command: Command, increase: bool = True):
         for needed in command.needs:

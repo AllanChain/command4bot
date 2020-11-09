@@ -5,6 +5,23 @@ description = "A general purpose library for command-based iteraction made for b
 authors = ["Allan Chain <allanchain@pku.edu.cn>"]
 license = "MIT"
 
+readme = "README.md"
+
+homepage = "https://github.com/AllanChain/command4bot"
+repository = "https://github.com/AllanChain/command4bot"
+documentation = "https://github.com/AllanChain/command4bot#readme"
+
+keywords = ["command", "bot"]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "TOPIC :: COMMUNICATIONS :: CHATClose",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8"
+]
+
 [tool.poetry.dependencies]
 python = "^3.6.1"
 typing_extensions = {version = "^3.7.4", python = "<3.8"}

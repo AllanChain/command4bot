@@ -1,8 +1,19 @@
 # Command For Bot
 
+![PyPI](https://img.shields.io/pypi/v/command4bot)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/command4bot)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/command4bot)
+
 ![Run Tests](https://github.com/AllanChain/command4bot/workflows/Run%20Tests/badge.svg)
-![Check Code Style](https://github.com/AllanChain/command4bot/workflows/Check%20Code%20Style/badge.svg)
 [![codecov](https://codecov.io/gh/AllanChain/command4bot/branch/master/graph/badge.svg?token=RJV7MMZC5D)](https://codecov.io/gh/AllanChain/command4bot)
+
+![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/AllanChain/command4bot)
+![GitHub last commit](https://img.shields.io/github/last-commit/AllanChain/command4bot)
+
+![Check Code Style](https://github.com/AllanChain/command4bot/workflows/Check%20Code%20Style/badge.svg)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
 :warning: The document is still working in progress!
 

@@ -150,5 +150,5 @@ class CommandsManager:
     ) -> Optional[Iterable[str]]:
         command_matches = self.command_reg.get_similar_commands(keyword)
         if command_matches:
-            return (command.brief_help for command in command_matches)
+            return [command.brief_help for command in command_matches]
         return None

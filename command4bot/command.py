@@ -79,11 +79,11 @@ class BaseCommandRegistry:
         return self._reg.get(keyword)
 
     def get_similar_commands(self, keyword: str) -> Iterable[Command]:
-        return (
+        return [
             self._reg[match]
             for match in get_close_matches(keyword, self._reg.keys())
             if self.resolve_command_status(self._reg[match])
-        )
+        ]
 
     def get_status(self, name: str) -> bool:
         raise NotImplementedError

@@ -19,6 +19,7 @@ class TestBasicUsage:
 
         @mgr.command
         def world():
+            "Say world"
             return "world"
 
         return mgr
@@ -31,7 +32,7 @@ class TestBasicUsage:
         assert result == "hello, source!"
 
     def test_fallback(self, mgr):
-        assert "world" in mgr.exec("word")
+        assert mgr.exec("word") == "Get!\nPossible:\n- Say world"
 
 
 class TestBasicSetup:

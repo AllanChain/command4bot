@@ -50,3 +50,15 @@ class TestDuplicate:
 
         e_message = e_info.value.args[0].lower()
         assert "setup" in e_message and "setdup" in e_message
+
+
+class TestNotFound:
+    def test_setup_not_found(self, mgr: CommandsManager):
+        with pytest.raises(ValueError) as e_info:
+
+            @mgr.command
+            def hello(world):
+                pass
+
+        e_message = e_info.value.args[0].lower()
+        assert "setup" in e_message and "world" in e_message

@@ -1,0 +1,25 @@
+name: tagged-release
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  tagged-release:
+    name: Tagged Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - name: Install Poetry
+        run: pip instal poetry
+      - name: Build
+        run: poetry build
+      - uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: ${{ contains(github.ref, '-') }}
+          files: |
+            dist/*.whl

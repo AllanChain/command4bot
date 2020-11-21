@@ -9,6 +9,7 @@
 
 ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/AllanChain/command4bot)
 ![GitHub last commit](https://img.shields.io/github/last-commit/AllanChain/command4bot)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/command4bot)
 
 ![Check Code Style](https://github.com/AllanChain/command4bot/workflows/Check%20Code%20Style/badge.svg)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)

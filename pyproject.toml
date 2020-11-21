@@ -55,7 +55,8 @@ source = ["command4bot"]
 [tool.coverage.report]
 exclude_lines = [
     "raise NotImplementedError",
-    "except ImportError:"
+    "except ImportError:",
+    "..."
 ]
 
 [build-system]

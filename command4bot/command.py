@@ -64,7 +64,7 @@ class BaseCommandRegistry:
                 raise ValueError(f'Duplicated command keyword: "{keyword}"')
             self._reg[keyword] = command
 
-        if command.name in self._groups:
+        if command.name in self._groups or command.name in command.groups:
             raise ValueError(f'Duplicated command name: "{command.name}"')
         self._groups[command.name] = [command]
 

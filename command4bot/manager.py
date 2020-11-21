@@ -1,4 +1,4 @@
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Union, overload
 
 try:
     from typing import TypedDict
@@ -9,7 +9,7 @@ from .command import Command, CommandRegistry
 from .fallback import FallbackRegistry
 from .setup import Setup, SetupRegistry
 from .typing_ext import Decorator, F
-from .utils import flex_decorator, split_keyword
+from .utils import split_keyword
 
 
 class Config(TypedDict):
@@ -74,25 +74,63 @@ class CommandsManager:
                 return result
         return None
 
-    @flex_decorator
-    def setup(self) -> Decorator:
+    @overload
+    def setup(self, setup_func: F) -> F:
+        ...
+
+    @overload
+    def setup(self, setup_func: None = ...) -> Decorator:
+        ...
+
+    def setup(self, setup_func: Optional[F] = None) -> Union[F, Decorator]:
         def deco(setup_func: F) -> F:
             self.setup_reg.register(Setup(setup_func))
             return setup_func
 
+        if setup_func:
+            return deco(setup_func)
         return deco
 
-    @flex_decorator
-    def fallback(self, priority: int = 10) -> Decorator:
+    @overload
+    def fallback(self, fallback_func: F) -> F:
+        ...
+
+    @overload
+    def fallback(
+        self, fallback_func: None = ..., *, priority: int = ...
+    ) -> Decorator:
+        ...
+
+    def fallback(
+        self, fallback_func: Optional[F] = None, *, priority: int = 10
+    ) -> Decorator:
         def deco(fallback_func: F) -> F:
             self.fallback_reg.register(fallback_func, priority)
             return fallback_func
 
+        if fallback_func:
+            return deco(fallback_func)
         return deco
 
-    @flex_decorator
+    @overload
+    def command(self, command_func: F) -> F:
+        ...
+
+    @overload
     def command(
         self,
+        command_func: None = ...,
+        *,
+        keywords: Iterable[str] = ...,
+        groups: Iterable[str] = ...,
+        default_closed: bool = ...,
+    ) -> Decorator:
+        ...
+
+    def command(
+        self,
+        command_func: Optional[F] = None,
+        *,
         keywords: Iterable[str] = None,
         groups: Iterable[str] = None,
         default_closed: bool = False,
@@ -113,6 +151,8 @@ class CommandsManager:
                 self.setup_reg.update_reference(command)
             return command_func
 
+        if command_func:
+            return deco(command_func)
         return deco
 
     def close(self, name: str) -> None:

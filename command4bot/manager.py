@@ -1,4 +1,4 @@
-from typing import Iterable, Optional, Union, overload
+from typing import Any, Iterable, Optional, Union, overload
 
 try:
     from typing import TypedDict
@@ -51,7 +51,14 @@ class CommandsManager:
             # python/mypy#9335
             self.config.update(config)  # type: ignore
 
-    def exec(self, content: str, **kwargs) -> Optional[str]:
+    def exec(self, content: str, **kwargs) -> Any:
+        """Execute given command ``content``
+
+        :param content: command to execute
+        :type content: str
+        :return: execution result
+        :rtype: Any
+        """
         keyword, payload = split_keyword(content)
         command = self.command_reg.get(keyword)
         if command is not None:
@@ -83,6 +90,15 @@ class CommandsManager:
         ...
 
     def setup(self, setup_func: Optional[F] = None) -> Union[F, Decorator]:
+        """A decorator (factory) to register a setup
+
+        :param setup_func: setup function to register, defaults to None
+        :type setup_func: Optional[F], optional
+        :return: setup function itself if used as decorator,
+            a decorator to register a setup if used as decorator factory
+        :rtype: Union[F, Decorator]
+        """
+
         def deco(setup_func: F) -> F:
             self.setup_reg.register(Setup(setup_func))
             return setup_func

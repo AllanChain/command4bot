@@ -44,7 +44,7 @@ jobs:
             poetry-cache-v1-
       - name: Install Requirements
         if: matrix.os == 'windows-latest' || steps.cache.outputs.cache-hit != 'true'
-        run: poetry install --no-root
+        run: poetry install -E test --no-root
       - name: Run Tests
         if: "! (matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8')"
         run: poetry run pytest

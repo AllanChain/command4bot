@@ -3,7 +3,7 @@ name = "alabaster"
 version = "0.7.12"
 description = "A configurable sidebar-enabled Sphinx theme"
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [[package]]
@@ -19,7 +19,7 @@ name = "atomicwrites"
 version = "1.4.0"
 description = "Atomic file writes."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
@@ -27,7 +27,7 @@ name = "attrs"
 version = "20.3.0"
 description = "Classes Without Boilerplate"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [package.extras]
@@ -41,7 +41,7 @@ name = "babel"
 version = "2.9.0"
 description = "Internationalization utilities"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [package.dependencies]
@@ -52,7 +52,7 @@ name = "certifi"
 version = "2020.11.8"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [[package]]
@@ -68,7 +68,7 @@ name = "chardet"
 version = "3.0.4"
 description = "Universal encoding detector for Python 2 and 3"
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [[package]]
@@ -76,7 +76,7 @@ name = "colorama"
 version = "0.4.4"
 description = "Cross-platform colored terminal text."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
@@ -84,7 +84,7 @@ name = "coverage"
 version = "5.3"
 description = "Code coverage measurement for Python"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
 
 [package.extras]
@@ -103,7 +103,7 @@ name = "docutils"
 version = "0.16"
 description = "Docutils -- Python Documentation Utilities"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
@@ -130,7 +130,7 @@ name = "idna"
 version = "2.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
@@ -138,7 +138,7 @@ name = "imagesize"
 version = "1.2.0"
 description = "Getting image size from png/jpeg/jpeg2000/gif file"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
@@ -175,7 +175,7 @@ name = "iniconfig"
 version = "1.1.1"
 description = "iniconfig: brain-dead simple config-ini parsing"
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [[package]]
@@ -183,7 +183,7 @@ name = "jinja2"
 version = "2.11.2"
 description = "A very fast and expressive template engine."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [package.dependencies]
@@ -197,7 +197,7 @@ name = "markupsafe"
 version = "1.1.1"
 description = "Safely add untrusted strings to HTML/XML markup."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
 
 [[package]]
@@ -213,7 +213,7 @@ name = "packaging"
 version = "20.4"
 description = "Core utilities for Python packages"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [package.dependencies]
@@ -225,7 +225,7 @@ name = "pluggy"
 version = "0.13.1"
 description = "plugin and hook calling mechanisms for python"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [package.dependencies]
@@ -257,7 +257,7 @@ name = "py"
 version = "1.9.0"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
@@ -265,7 +265,7 @@ name = "pygments"
 version = "2.7.2"
 description = "Pygments is a syntax highlighting package written in Python."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.5"
 
 [[package]]
@@ -273,7 +273,7 @@ name = "pyparsing"
 version = "2.4.7"
 description = "Python parsing module"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
@@ -281,7 +281,7 @@ name = "pytest"
 version = "6.1.2"
 description = "pytest: simple powerful testing with Python"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.5"
 
 [package.dependencies]
@@ -304,7 +304,7 @@ name = "pytest-cov"
 version = "2.10.1"
 description = "Pytest plugin for measuring coverage."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [package.dependencies]
@@ -319,7 +319,7 @@ name = "pytz"
 version = "2020.4"
 description = "World timezone definitions, modern and historical"
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [[package]]
@@ -335,7 +335,7 @@ name = "requests"
 version = "2.25.0"
 description = "Python HTTP for Humans."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [package.dependencies]
@@ -361,7 +361,7 @@ name = "snowballstemmer"
 version = "2.0.0"
 description = "This package provides 26 stemmers for 25 languages generated from Snowball algorithms."
 category = "dev"
-optional = true
+optional = false
 python-versions = "*"
 
 [[package]]
@@ -369,7 +369,7 @@ name = "sphinx"
 version = "3.3.1"
 description = "Python documentation generator"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.5"
 
 [package.dependencies]
@@ -400,7 +400,7 @@ name = "sphinxcontrib-applehelp"
 version = "1.0.2"
 description = "sphinxcontrib-applehelp is a sphinx extension which outputs Apple help books"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.5"
 
 [package.extras]
@@ -412,7 +412,7 @@ name = "sphinxcontrib-devhelp"
 version = "1.0.2"
 description = "sphinxcontrib-devhelp is a sphinx extension which outputs Devhelp document."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.5"
 
 [package.extras]
@@ -424,7 +424,7 @@ name = "sphinxcontrib-htmlhelp"
 version = "1.0.3"
 description = "sphinxcontrib-htmlhelp is a sphinx extension which renders HTML help files"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.5"
 
 [package.extras]
@@ -436,7 +436,7 @@ name = "sphinxcontrib-jsmath"
 version = "1.0.1"
 description = "A sphinx extension which renders display math in HTML via JavaScript"
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.5"
 
 [package.extras]
@@ -447,7 +447,7 @@ name = "sphinxcontrib-qthelp"
 version = "1.0.3"
 description = "sphinxcontrib-qthelp is a sphinx extension which outputs QtHelp document."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.5"
 
 [package.extras]
@@ -459,7 +459,7 @@ name = "sphinxcontrib-serializinghtml"
 version = "1.1.4"
 description = "sphinxcontrib-serializinghtml is a sphinx extension which outputs \"serialized\" HTML files (json and pickle)."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=3.5"
 
 [package.extras]
@@ -487,7 +487,7 @@ name = "urllib3"
 version = "1.26.2"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 category = "dev"
-optional = true
+optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
 
 [package.extras]
@@ -527,14 +527,10 @@ python-versions = ">=3.6"
 docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pytest-cov", "jaraco.test (>=3.2.0)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
-[extras]
-docs = []
-test = []
-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "d2bae4f423bc1b97783cf94ebd3d86dfd892683462409f3928bc5f06be851c29"
+content-hash = "05fdfe54a8a87a66e3b1af58da9a07bf2319f47b28f5cb09765f3942d1af3388"
 
 [metadata.files]
 alabaster = [

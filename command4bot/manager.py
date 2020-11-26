@@ -139,7 +139,6 @@ class CommandsManager:
         *,
         keywords: Iterable[str] = ...,
         groups: Iterable[str] = ...,
-        default_closed: bool = ...,
     ) -> Decorator:
         ...
 
@@ -149,14 +148,12 @@ class CommandsManager:
         *,
         keywords: Iterable[str] = None,
         groups: Iterable[str] = None,
-        default_closed: bool = False,
     ) -> Decorator:
         def deco(command_func: F) -> F:
             command = Command(
                 command_func,
                 keywords or [command_func.__name__],
                 groups or [],
-                default_closed,
                 parameter_ignore=self.config["command_parameter_ignore"],
                 needs_ignore=self.config["command_needs_ignore"],
                 payload_parameter=self.config["command_payload_parameter"],

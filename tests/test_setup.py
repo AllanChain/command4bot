@@ -1,6 +1,6 @@
 import pytest
 
-from command4bot import CommandsManager
+from command4bot import CommandRegistry, CommandsManager
 
 
 class TestBasicSetup:
@@ -29,7 +29,8 @@ class TestBasicSetup:
 class TestGeneratorSetup:
     @pytest.fixture(scope="class")
     def mgr(self, data_share):
-        mgr = CommandsManager()
+        command_reg = CommandRegistry()
+        mgr = CommandsManager(command_reg=command_reg)
         data_share["status"] = None
 
         @mgr.setup
@@ -38,7 +39,8 @@ class TestGeneratorSetup:
             yield "abc"
             data_share["status"] = "done"
 
-        @mgr.command(default_closed=True)
+        @mgr.command()
+        @command_reg.mark_default_closed
         def post(data):
             return data
 

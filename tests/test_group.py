@@ -1,10 +1,9 @@
-from command4bot.command import CommandRegistry
 import pytest
 
-from command4bot import CommandsManager
+from command4bot import CommandRegistry, CommandsManager
 
 
-class TestGroupOpen:
+class TestGroupClose:
     @pytest.fixture(scope="class")
     def mgr(self):
         mgr = CommandsManager()

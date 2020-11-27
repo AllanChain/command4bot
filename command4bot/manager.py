@@ -34,9 +34,9 @@ DEFAULT_CONFIG = Config(
 class CommandsManager:
     def __init__(
         self,
-        setup_reg: SetupRegistry=None,
-        command_reg: CommandRegistry=None,
-        fallback_reg: FallbackRegistry=None,
+        setup_reg: SetupRegistry = None,
+        command_reg: CommandRegistry = None,
+        fallback_reg: FallbackRegistry = None,
         config: Optional[Config] = None,
         **kwargs,
     ):
@@ -251,9 +251,7 @@ class CommandsManager:
             )
         )
 
-    def get_possible_keywords_help(
-        self, keyword: str
-    ) -> List[str]:
+    def get_possible_keywords_help(self, keyword: str) -> List[str]:
         """Get the help of keywords similar to ``keyword``.
 
         Used by ``help_with_similar``.
@@ -263,4 +261,7 @@ class CommandsManager:
         :return: Brief help string of the similar commands.
         :rtype: List[str]
         """
-        return [command.brief_help for command in self.command_reg.get_similar_commands(keyword)]
+        return [
+            command.brief_help
+            for command in self.command_reg.get_similar_commands(keyword)
+        ]

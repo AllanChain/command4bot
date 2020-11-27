@@ -2,7 +2,16 @@ from collections import defaultdict
 from difflib import get_close_matches
 from inspect import signature
 from textwrap import dedent
-from typing import Any, Callable, Dict, Iterable, List, Optional, Union, overload
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Union,
+    overload,
+)
 
 
 class Command:

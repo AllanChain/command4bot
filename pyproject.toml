@@ -9,7 +9,7 @@ readme = "README.md"
 
 homepage = "https://github.com/AllanChain/command4bot"
 repository = "https://github.com/AllanChain/command4bot"
-documentation = "https://github.com/AllanChain/command4bot#readme"
+documentation = "https://command4bot.readthedocs.io/en/latest/"
 
 keywords = ["command", "bot"]
 

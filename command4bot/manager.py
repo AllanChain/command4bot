@@ -52,9 +52,9 @@ class CommandsManager:
             self.config.update(config)  # type: ignore
 
     def exec(self, content: str, **kwargs) -> Any:
-        """Execute given command ``content``
+        """Execute given text input ``content``
 
-        :param content: command to execute
+        :param content: content to execute
         :type content: str
         :return: execution result
         :rtype: Any
@@ -90,13 +90,9 @@ class CommandsManager:
         ...
 
     def setup(self, setup_func: Optional[F] = None) -> Union[F, Decorator]:
-        """A decorator (factory) to register a setup
+        """Decorator to register a setup (a.k.a. ommand dependency).
 
-        :param setup_func: setup function to register, defaults to None
-        :type setup_func: Optional[F], optional
-        :return: setup function itself if used as decorator,
-            a decorator to register a setup if used as decorator factory
-        :rtype: Union[F, Decorator]
+        This decorator can be used with or without parentheses.
         """
 
         def deco(setup_func: F) -> F:
@@ -120,6 +116,20 @@ class CommandsManager:
     def fallback(
         self, fallback_func: Optional[F] = None, *, priority: int = 10
     ) -> Decorator:
+        """Decorator to register a fallback handler.
+
+        The fallback handlers registered are called in order of priority,
+        with the original text input (``payload``)
+        and all other keyword parameters passed to `CommandsManager.exec`,
+        until the handler returns something other than ``None``,
+        when there is no command found to handle the input.
+
+        :param priority:
+            Fallback handlers with higher priority will be called first,
+            defaults to 10
+        :type priority: int, optional
+        """
+
         def deco(fallback_func: F) -> F:
             self.fallback_reg.register(fallback_func, priority)
             return fallback_func
@@ -149,6 +159,26 @@ class CommandsManager:
         keywords: Iterable[str] = None,
         groups: Iterable[str] = None,
     ) -> Decorator:
+        """Decorator to register a command handler.
+
+        The command handler is called
+        with the rest of the input (that is, without keyword it self),
+        and optional keywords passed to ``CommandsManager.exec``,
+        when input matches its keywords.
+
+        The first non-empty line of the function's docstring
+        will be used as brief help string of the command.
+        And the whole docstring will be used as full help string.
+
+        :param keywords:
+            Keywords for command. A keyword is a leading word of text input,
+            separated with the rest part by a space.
+            Defaults to the name of the comamnd function
+        :type keywords: Iterable[str], optional
+        :param groups: Group names of the command, defaults to ``[]``
+        :type groups: Iterable[str], optional
+        """
+
         def deco(command_func: F) -> F:
             command = Command(
                 command_func,
@@ -169,6 +199,11 @@ class CommandsManager:
         return deco
 
     def close(self, name: str) -> None:
+        """Mark a command or group as closed.
+
+        :param name: The name of the command or group to close.
+        :type name: str
+        """
         if not self.command_reg.get_status(name):
             return
         command_will_close = self.command_reg.get_commands_will_close(name)
@@ -177,6 +212,11 @@ class CommandsManager:
             self.setup_reg.update_reference(command, False)
 
     def open(self, name: str) -> None:
+        """Mark a command or group as open.
+
+        :param name: The name of the command or group to open.
+        :type name: str
+        """
         if self.command_reg.get_status(name):
             return
         command_will_open = self.command_reg.get_commands_will_open(name)
@@ -185,7 +225,16 @@ class CommandsManager:
             self.setup_reg.update_reference(command, True)
 
     def help_with_similar(self, content: str) -> str:
-        "Will be wrapped as fallback in __init__"
+        """Return helps with similar commands hint.
+
+        This is the default fallback handler
+        and will be registered in ``__init__``.
+
+        :param content: The text input
+        :type content: str
+        :return: Help message
+        :rtype: str
+        """
 
         keyword, _ = split_keyword(content)
         # get command not found help message
@@ -205,4 +254,13 @@ class CommandsManager:
     def get_possible_keywords_help(
         self, keyword: str
     ) -> List[str]:
+        """Get the help of keywords similar to ``keyword``.
+
+        Used by ``help_with_similar``.
+
+        :param keyword: The misspelled keyword to find similar keywrod for.
+        :type keyword: str
+        :return: Brief help string of the similar commands.
+        :rtype: List[str]
+        """
         return [command.brief_help for command in self.command_reg.get_similar_commands(keyword)]

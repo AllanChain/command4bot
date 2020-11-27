@@ -25,6 +25,7 @@
 - [Basic Concepts and Usage](#basic-concepts-and-usage)
   - [Command](#command)
   - [Setup (Command Dependency)](#setup-command-dependency)
+- [Documentation](#documentation)
 - [Todo](#todo)
 
 ## Installation
@@ -71,6 +72,9 @@ def send(paload, ws):
     ws.send(payload)
 ```
 
+## Documentation
+
+<https://command4bot.readthedocs.io/en/latest/>
 
 ## Todo
 

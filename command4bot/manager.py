@@ -1,4 +1,4 @@
-from typing import Any, Iterable, Optional, Union, overload
+from typing import Any, Iterable, List, Optional, Union, overload
 
 try:
     from typing import TypedDict
@@ -34,9 +34,9 @@ DEFAULT_CONFIG = Config(
 class CommandsManager:
     def __init__(
         self,
-        setup_reg=None,
-        command_reg=None,
-        fallback_reg=None,
+        setup_reg: SetupRegistry=None,
+        command_reg: CommandRegistry=None,
+        fallback_reg: FallbackRegistry=None,
         config: Optional[Config] = None,
         **kwargs,
     ):
@@ -204,8 +204,5 @@ class CommandsManager:
 
     def get_possible_keywords_help(
         self, keyword: str
-    ) -> Optional[Iterable[str]]:
-        command_matches = self.command_reg.get_similar_commands(keyword)
-        if command_matches:
-            return [command.brief_help for command in command_matches]
-        return None
+    ) -> List[str]:
+        return [command.brief_help for command in self.command_reg.get_similar_commands(keyword)]

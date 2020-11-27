@@ -2,7 +2,7 @@ from collections import defaultdict
 from difflib import get_close_matches
 from inspect import signature
 from textwrap import dedent
-from typing import Any, Callable, Dict, Iterable, Optional, Union, overload
+from typing import Any, Callable, Dict, Iterable, List, Optional, Union, overload
 
 
 class Command:
@@ -73,7 +73,7 @@ class BaseCommandRegistry:
     def get(self, keyword: str) -> Optional[Command]:
         return self._reg.get(keyword)
 
-    def get_similar_commands(self, keyword: str) -> Iterable[Command]:
+    def get_similar_commands(self, keyword: str) -> List[Command]:
         return [
             self._reg[match]
             for match in get_close_matches(keyword, self._reg.keys())

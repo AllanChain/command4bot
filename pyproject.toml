@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "command4bot"
-version = "v0.1.2"
+version = "v0.2.0"
 description = "A general purpose library for command-based iteraction made for bots"
 authors = ["Allan Chain <allanchain@pku.edu.cn>"]
 license = "MIT"

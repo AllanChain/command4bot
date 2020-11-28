@@ -31,13 +31,13 @@ class TestGeneratorSetup:
     def mgr(self, data_share):
         command_reg = CommandRegistry()
         mgr = CommandsManager(command_reg=command_reg)
-        data_share["status"] = None
+        data_share.status = None
 
         @mgr.setup
         def data():
-            data_share["status"] = "pending"
+            data_share.status = "pending"
             yield "abc"
-            data_share["status"] = "done"
+            data_share.status = "done"
 
         @mgr.command()
         @command_reg.mark_default_closed
@@ -53,13 +53,13 @@ class TestGeneratorSetup:
     def test_not_inited_if_command_closed(
         self, mgr: CommandsManager, data_share
     ):
-        assert data_share["status"] is None
+        assert data_share.status is None
         assert mgr.setup_reg.get("data").cached_generator is None
         assert mgr.setup_reg.get("data").cached_value is None
         assert not mgr.setup_reg.get("data").is_cached
 
     def test_lazy_load(self, mgr, open_post, data_share):
-        assert data_share["status"] is None
+        assert data_share.status is None
 
     def test_value_cached(self, mgr: CommandsManager, open_post):
         assert mgr.exec("post") == "abc"
@@ -75,9 +75,9 @@ class TestGeneratorSetupCleanup:
 
         @mgr.setup
         def data():
-            data_share["status"] = "pending"
+            data_share.status = "pending"
             yield "abc"
-            data_share["status"] = "done"
+            data_share.status = "done"
 
         @mgr.command
         def post(data):
@@ -88,7 +88,7 @@ class TestGeneratorSetupCleanup:
         return mgr
 
     def test_cleanup(self, mgr: CommandsManager, data_share):
-        assert data_share["status"] == "done"
+        assert data_share.status == "done"
         assert mgr.setup_reg.get("data").cached_generator is None
         assert mgr.setup_reg.get("data").cached_value is None
         assert not mgr.setup_reg.get("data").is_cached

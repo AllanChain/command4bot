@@ -5,7 +5,7 @@ try:
 except ImportError:
     from typing_extensions import TypedDict
 
-from .command import Command, CommandRegistry
+from .command import BaseCommandRegistry, Command, CommandRegistry
 from .fallback import FallbackRegistry
 from .setup import Setup, SetupRegistry
 from .typing_ext import Decorator, F
@@ -35,7 +35,7 @@ class CommandsManager:
     def __init__(
         self,
         setup_reg: SetupRegistry = None,
-        command_reg: CommandRegistry = None,
+        command_reg: BaseCommandRegistry = None,
         fallback_reg: FallbackRegistry = None,
         config: Optional[Config] = None,
         **kwargs,

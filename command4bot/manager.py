@@ -32,6 +32,11 @@ DEFAULT_CONFIG = Config(
 
 
 class CommandsManager:
+    setup_reg: SetupRegistry
+    command_reg: BaseCommandRegistry
+    fallback_reg: FallbackRegistry
+    config: Config
+
     def __init__(
         self,
         setup_reg: SetupRegistry = None,

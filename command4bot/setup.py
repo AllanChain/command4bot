@@ -1,18 +1,27 @@
 from inspect import isgenerator
-from typing import Any, Dict
+from typing import Any, Callable, Dict, Generator, Optional
 
 from .command import Command
 from .typing_ext import F
 
 
 class Setup:
+    name: str
+    is_cached: bool
+    cached_value: Any
+    cached_generator: Optional[Generator]
+    reference_count: int
+    enable_cache: bool
+    setup_func: Callable
+
     def __init__(self, setup_func: F, enable_cache: bool = True) -> None:
         self.is_cached = False
         self.cached_value = None
         self.cached_generator = None
         self.reference_count = 0
         self.enable_cache = enable_cache
-        self.setup_func = setup_func
+        # python/mypy#2427
+        self.setup_func = setup_func  # type: ignore
         self.name = setup_func.__name__
 
     @property

@@ -95,6 +95,9 @@ class BaseCommandRegistry:
     def set_status(self, name: str, status: bool) -> None:
         raise NotImplementedError
 
+    def set_default_closed(self, name: str) -> None:
+        raise NotImplementedError
+
     @overload
     def mark_default_closed(self, *args: Callable) -> Callable:
         ...
@@ -106,7 +109,11 @@ class BaseCommandRegistry:
     def mark_default_closed(
         self, *args: Union[str, Callable]
     ) -> Optional[Callable]:
-        raise NotImplementedError
+        for arg in args:
+            self.set_default_closed(arg.__name__ if callable(arg) else arg)
+        if args and callable(args[0]):
+            return args[0]
+        return None
 
     def resolve_command_status(self, command: Command) -> bool:
         if not self.get_status(command.name):
@@ -145,19 +152,5 @@ class CommandRegistry(BaseCommandRegistry):
     def set_status(self, name: str, status: bool) -> None:
         self._status[name] = status
 
-    @overload
-    def mark_default_closed(self, *args: Callable) -> Callable:
-        ...
-
-    @overload
-    def mark_default_closed(self, *args: str) -> None:
-        ...
-
-    def mark_default_closed(
-        self, *args: Union[str, Callable]
-    ) -> Optional[Callable]:
-        for arg in args:
-            self._status[arg.__name__ if callable(arg) else arg] = False
-        if args and callable(args[0]):
-            return args[0]
-        return None
+    def set_default_closed(self, name: str) -> None:
+        self._status[name] = False

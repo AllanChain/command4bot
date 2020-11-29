@@ -1,14 +1,12 @@
 import pytest
 
 from command4bot import CommandsManager
-from command4bot.command import CommandRegistry
 
 
 class TestOpenClose:
     @pytest.fixture(scope="class")
     def mgr(self):
-        command_reg = CommandRegistry()
-        mgr = CommandsManager(command_reg=command_reg)
+        mgr = CommandsManager()
 
         @mgr.setup
         def name():
@@ -23,7 +21,7 @@ class TestOpenClose:
             return f"{name} says {payload}"
 
         @mgr.command()
-        @command_reg.mark_default_closed
+        @mgr.command_reg.mark_default_closed
         def hidden(payload, haha):
             return f"{haha}! You found {payload}"
 
@@ -83,8 +81,7 @@ class TestOpenClose:
 class TestOpenCloseTwice:
     @pytest.fixture(scope="class")
     def mgr(self):
-        command_reg = CommandRegistry()
-        mgr = CommandsManager(command_reg=command_reg)
+        mgr = CommandsManager()
 
         @mgr.setup
         def name():
@@ -99,7 +96,7 @@ class TestOpenCloseTwice:
             return f"{name} says {payload}"
 
         @mgr.command()
-        @command_reg.mark_default_closed
+        @mgr.command_reg.mark_default_closed
         def hidden(payload, haha):
             return f"{haha}! You found {payload}"
 

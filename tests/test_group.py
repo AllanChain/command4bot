@@ -1,6 +1,6 @@
 import pytest
 
-from command4bot import CommandRegistry, CommandsManager
+from command4bot import CommandsManager
 
 
 class TestGroupClose:
@@ -30,9 +30,8 @@ class TestGroupClose:
 class TestGroupOpen:
     @pytest.fixture(scope="class")
     def mgr(self):
-        command_reg = CommandRegistry()
-        mgr = CommandsManager(command_reg=command_reg)
-        command_reg.mark_default_closed("hello")
+        mgr = CommandsManager()
+        mgr.command_reg.mark_default_closed("hello")
 
         @mgr.command(groups=["hello"])
         def hi():

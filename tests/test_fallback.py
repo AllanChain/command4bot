@@ -36,3 +36,37 @@ class TestDisableDefault:
 
     def test_exec(self, mgr):
         assert mgr.exec("hello") is None
+
+
+class TestMultiFallback:
+    @pytest.fixture(scope="class")
+    def mgr(self, data_share):
+        mgr = CommandsManager(config=dict(enable_default_fallback=False))
+        data_share.calls = []
+
+        @mgr.fallback(priority=10)
+        def fallback10(content):
+            data_share.calls.append(10)
+            return None
+
+        @mgr.fallback(priority=2)
+        def fallback2(content):
+            data_share.calls.append(2)
+            return "Hey!"
+
+        @mgr.fallback(priority=5)
+        def fallback5(content):
+            data_share.calls.append(5)
+            return None
+
+        return mgr
+
+    @pytest.fixture(scope="class")
+    def exec_result(self, mgr):
+        return mgr.exec("hello")
+
+    def test_multi(delf, exec_result):
+        assert exec_result == "Hey!"
+
+    def test_priority(self, data_share):
+        assert data_share.calls == [10, 5, 2]

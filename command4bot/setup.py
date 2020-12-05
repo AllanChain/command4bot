@@ -79,7 +79,7 @@ class SetupRegistry:
             setup.reference_count += 1 if increase else -1
             if setup.reference_count == 0:
                 setup.cleanup()
-            elif setup.reference_count < 0:
+            elif setup.reference_count < 0:  # pragma: no cover
                 raise ValueError(
                     "Setup reference less than zero." "Race condition?"
                 )

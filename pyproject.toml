@@ -59,6 +59,7 @@ source = ["command4bot"]
 
 [tool.coverage.report]
 exclude_lines = [
+    "pragma: no cover",
     "raise NotImplementedError",
     "except ImportError:",
     "\\.\\.\\."

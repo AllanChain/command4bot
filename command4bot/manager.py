@@ -26,6 +26,11 @@ def split_keyword(content: str) -> Tuple[str, str]:
 class Config(TypedDict):
     """Config dict for :class:`ComamndsManager`"""
 
+    enable_default_fallback: bool
+    """Whether to enable default fallback handler.
+
+    The default fallback handler returns similar command help
+    or a general response"""
     text_general_response: str
     """For default fallback handler :meth:`Command4bot.help_with_similar`.
 
@@ -58,9 +63,13 @@ class Config(TypedDict):
     Default to ``()``. These parameters are to receive extra context
     passed to :meth:`CommandsManager.exec`"""
     command_payload_parameter: str
+    """The payload parameter name of command handlers
+
+    Default to ``"payload"``"""
 
 
 DEFAULT_CONFIG = Config(
+    enable_default_fallback=True,
     text_general_response="Copy! But the bot can't understand it.",
     text_possible_command="Did you misspell it? Possible commands are:",
     text_command_closed="Sorry, this command is currently disabled.",
@@ -87,13 +96,14 @@ class CommandsManager:
         self.setup_reg = setup_reg or SetupRegistry()
         self.command_reg = command_reg or CommandRegistry()
         self.fallback_reg = fallback_reg or FallbackRegistry()
-        self.fallback_reg.register(self.help_with_similar, priority=-1)
 
         self.config: Config = DEFAULT_CONFIG.copy()
         self.config.update(kwargs)  # type: ignore
         if config:
             # python/mypy#9335
             self.config.update(config)  # type: ignore
+        if self.config["enable_default_fallback"]:
+            self.fallback_reg.register(self.help_with_similar, priority=-1)
 
     def exec(self, content: str, **kwargs) -> Any:
         """Execute given text input ``content``

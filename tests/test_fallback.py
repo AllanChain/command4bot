@@ -26,3 +26,13 @@ class TestFallback:
 
         e_message = e_info.value.args[0].lower()
         assert "frozen" in e_message
+
+
+class TestDisableDefault:
+    @pytest.fixture(scope="class")
+    def mgr(self):
+        mgr = CommandsManager(config=dict(enable_default_fallback=False))
+        return mgr
+
+    def test_exec(self, mgr):
+        assert mgr.exec("hello") is None

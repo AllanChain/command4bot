@@ -1,4 +1,4 @@
-from typing import Any, Iterable, List, Optional, Union, overload
+from typing import Any, Iterable, List, Optional, Tuple, Union, overload
 
 try:
     from typing import TypedDict
@@ -9,7 +9,18 @@ from .command import BaseCommandRegistry, Command, CommandRegistry
 from .fallback import FallbackRegistry
 from .setup import Setup, SetupRegistry
 from .typing_ext import Decorator, F
-from .utils import split_keyword
+
+
+def split_keyword(content: str) -> Tuple[str, str]:
+    """Split content into command name an payload
+
+    :param content: text input to split
+    :type content: str
+    :return: (command name, payload)
+    :rtype: Tuple[str, str]
+    """
+    split_st = content.split(" ", 1)
+    return (split_st[0], split_st[1] if len(split_st) == 2 else "")
 
 
 class Config(TypedDict):

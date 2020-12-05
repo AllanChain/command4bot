@@ -32,7 +32,8 @@ class Setup:
         result = self.setup_func()
 
         if isgenerator(result):
-            self.cached_generator = result
+            if self.enable_cache:
+                self.cached_generator = result
             result = next(result)
 
         if self.enable_cache:

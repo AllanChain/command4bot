@@ -130,17 +130,23 @@ class CommandsManager:
         ...
 
     @overload
-    def setup(self, setup_func: None = ...) -> Decorator:
+    def setup(
+        self, setup_func: None = ..., *, enable_cache: bool = ...
+    ) -> Decorator:
         ...
 
-    def setup(self, setup_func: Optional[F] = None) -> Union[F, Decorator]:
+    def setup(
+        self, setup_func: Optional[F] = None, *, enable_cache: bool = True
+    ) -> Union[F, Decorator]:
         """Decorator to register a setup (a.k.a. ommand dependency).
 
         This decorator can be used with or without parentheses.
         """
 
         def deco(setup_func: F) -> F:
-            self.setup_reg.register(Setup(setup_func))
+            self.setup_reg.register(
+                Setup(setup_func, enable_cache=enable_cache)
+            )
             return setup_func
 
         if setup_func:

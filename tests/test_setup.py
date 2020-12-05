@@ -65,6 +65,58 @@ class TestGeneratorSetup:
         assert mgr.setup_reg.get("data").cached_generator
         assert mgr.setup_reg.get("data").cached_value
         assert mgr.setup_reg.get("data").is_cached
+        assert mgr.exec("post") == "abc"  # cache properly
+
+
+class TestNoCache:
+    @pytest.fixture(scope="class")
+    def mgr(self, data_share):
+        mgr = CommandsManager()
+        data_share.run_count = 0
+
+        @mgr.setup(enable_cache=False)
+        def data():
+            data_share.run_count += 1
+            yield data_share.run_count
+
+        @mgr.command
+        def post(data):
+            return data
+
+        mgr.exec("post")
+        return mgr
+
+    def test_not_cached(self, mgr: CommandsManager):
+        assert not mgr.setup_reg.get("data").is_cached
+        assert mgr.setup_reg.get("data").cached_value is None
+        assert mgr.setup_reg.get("data").cached_generator is None
+
+    def test_run_twice(self, mgr: CommandsManager, data_share):
+        assert mgr.exec("post") == 2
+        assert data_share.run_count == 2
+
+
+class TestRunCount:
+    @pytest.fixture(scope="class")
+    def mgr(self, data_share):
+        mgr = CommandsManager()
+        data_share.run_count = 0
+
+        @mgr.setup
+        def data():
+            data_share.run_count += 1
+            yield data_share.run_count
+
+        @mgr.command
+        def post(data):
+            return data
+
+        mgr.exec("post")
+        return mgr
+
+    def test_run_twice(self, mgr: CommandsManager, data_share):
+        assert mgr.exec("post") == 1
+        assert data_share.run_count == 1
 
 
 class TestGeneratorSetupCleanup:

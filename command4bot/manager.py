@@ -29,15 +29,21 @@ class Config(TypedDict):
     text_general_response: str
     """For default fallback handler :meth:`Command4bot.help_with_similar`.
 
+    Default to ``"Copy! But the bot can't understand it."``
+
     What to return if neither exact nor similar command handlers found
     for the input"""
     text_possible_command: str
     """For default fallback handler :meth:`Command4bot.help_with_similar`.
 
+    Default to ``"Did you misspell it? Possible commands are:"``
+
     What to say before a list of command helps if only similar command
     handlers foundfor the input"""
     text_command_closed: str
-    """What to return if target command handler is closed"""
+    """What to return if target command handler is closed.
+
+    Default to ``"Sorry, this command is currently disabled."``"""
     command_parameter_ignore: Iterable[str]
     """Ignore these parameters of command handlers when constructing keyword
     arguments to pass
@@ -55,9 +61,9 @@ class Config(TypedDict):
 
 
 DEFAULT_CONFIG = Config(
-    text_general_response="Get!",
-    text_possible_command="Possible:",
-    text_command_closed="CLOSED",
+    text_general_response="Copy! But the bot can't understand it.",
+    text_possible_command="Did you misspell it? Possible commands are:",
+    text_command_closed="Sorry, this command is currently disabled.",
     command_parameter_ignore=("self",),
     command_needs_ignore=(),
     command_payload_parameter="payload",

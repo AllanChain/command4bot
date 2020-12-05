@@ -20,12 +20,12 @@ To disable or close it, just call
 
     mgr.close("greet")
 
-When attempting to execute a closed command, the comamnd handler will not be called, and the execution just returns ``"CLOSED"``.
+When attempting to execute a closed command, the comamnd handler will not be called, and the execution just returns :attr:`Config.text_command_closed`.
 
 .. code-block:: python
 
     >>> mgr.exec("greet")
-    'CLOSED'
+    'Sorry, this command is currently disabled.'
 
 .. note::
     Pass the name to :meth:`CommandsManager.close`, not the command handler function.

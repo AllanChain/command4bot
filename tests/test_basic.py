@@ -1,6 +1,7 @@
 import pytest
 
 from command4bot import CommandsManager
+from command4bot.manager import DEFAULT_CONFIG
 
 
 class TestBasicUsage:
@@ -28,5 +29,8 @@ class TestBasicUsage:
 
     def test_fallback(self, mgr):
         "This tests both two types of help and cached fallback"
-        assert mgr.exec("word") == "Get!\nPossible:\n- Say world"
-        assert mgr.exec("adflj") == "Get!"
+        assert (
+            mgr.exec("word")
+            == DEFAULT_CONFIG["text_possible_command"] + "\n- Say world"
+        )
+        assert mgr.exec("adflj") == DEFAULT_CONFIG["text_general_response"]

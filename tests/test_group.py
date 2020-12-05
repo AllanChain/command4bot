@@ -1,6 +1,7 @@
 import pytest
 
 from command4bot import CommandsManager
+from command4bot.manager import DEFAULT_CONFIG
 
 
 class TestGroupClose:
@@ -23,8 +24,8 @@ class TestGroupClose:
         mgr.close("hello")
 
     def test_close_both(self, mgr):
-        assert mgr.exec("hi") == "CLOSED"
-        assert mgr.exec("aloha") == "CLOSED"
+        assert mgr.exec("hi") == DEFAULT_CONFIG["text_command_closed"]
+        assert mgr.exec("aloha") == DEFAULT_CONFIG["text_command_closed"]
 
 
 class TestGroupOpen:
@@ -48,8 +49,8 @@ class TestGroupOpen:
         mgr.open("hello")
 
     def test_default_close(self, mgr):
-        assert mgr.exec("hi") == "CLOSED"
-        assert mgr.exec("aloha") == "CLOSED"
+        assert mgr.exec("hi") == DEFAULT_CONFIG["text_command_closed"]
+        assert mgr.exec("aloha") == DEFAULT_CONFIG["text_command_closed"]
 
     def test_open_both(self, mgr, open_group):
         assert mgr.exec("hi") == "hi"

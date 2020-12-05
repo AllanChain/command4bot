@@ -1,6 +1,7 @@
 import pytest
 
 from command4bot import CommandsManager
+from command4bot.manager import DEFAULT_CONFIG
 
 
 class TestOpenClose:
@@ -45,7 +46,10 @@ class TestOpenClose:
         assert mgr.exec("echo hello") == "Jack says hello"
 
     def test_closed_command_closed(self, mgr: CommandsManager):
-        assert mgr.exec("hidden treasure") == "CLOSED"
+        assert (
+            mgr.exec("hidden treasure")
+            == DEFAULT_CONFIG["text_command_closed"]
+        )
 
     def test_close_command_status(self, mgr: CommandsManager, close_echo):
         assert not mgr.command_reg.get_status("echo")
@@ -64,7 +68,7 @@ class TestOpenClose:
     def test_close_command_not_invokable(
         self, mgr: CommandsManager, close_echo
     ):
-        assert mgr.exec("echo hello") == "CLOSED"
+        assert mgr.exec("echo hello") == DEFAULT_CONFIG["text_command_closed"]
 
     def test_open_command_status(self, mgr: CommandsManager, open_hidden):
         assert mgr.command_reg.get_status("hidden")

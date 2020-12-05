@@ -1,6 +1,6 @@
 from .command import BaseCommandRegistry, Command, CommandRegistry
 from .fallback import FallbackRegistry
-from .manager import CommandsManager
+from .manager import CommandsManager, Config
 from .setup import Setup, SetupRegistry
 
 __all__ = [
@@ -10,5 +10,6 @@ __all__ = [
     "BaseCommandRegistry",
     "CommandRegistry",
     "FallbackRegistry",
+    "Config",
     "CommandsManager",
 ]

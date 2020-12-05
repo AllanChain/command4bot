@@ -13,11 +13,33 @@ from .utils import split_keyword
 
 
 class Config(TypedDict):
+    """Config dict for :class:`ComamndsManager`"""
+
     text_general_response: str
+    """For default fallback handler :meth:`Command4bot.help_with_similar`.
+
+    What to return if neither exact nor similar command handlers found
+    for the input"""
     text_possible_command: str
+    """For default fallback handler :meth:`Command4bot.help_with_similar`.
+
+    What to say before a list of command helps if only similar command
+    handlers foundfor the input"""
     text_command_closed: str
+    """What to return if target command handler is closed"""
     command_parameter_ignore: Iterable[str]
+    """Ignore these parameters of command handlers when constructing keyword
+    arguments to pass
+
+    Default to ``("self",)``. The manager will never try to pass these
+    parameters to the handler"""
     command_needs_ignore: Iterable[str]
+    """Do not regard these parameters of command handlers as setup names
+    (a.k.a dependencies, needs)
+
+
+    Default to ``()``. These parameters are to receive extra context
+    passed to :meth:`CommandsManager.exec`"""
     command_payload_parameter: str
 
 
@@ -250,7 +272,6 @@ class CommandsManager:
         # print similar commands
         return "\n".join(
             (
-                self.config["text_general_response"],
                 self.config["text_possible_command"],
                 *helps,
             )

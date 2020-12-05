@@ -10,10 +10,10 @@ Welcome to command4bot's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. module:: command4bot
+   start
+   status
+   api
 
-.. autoclass:: CommandsManager
-   :members:
 
 Indices and tables
 ==================

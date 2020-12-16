@@ -143,3 +143,55 @@ class TestGeneratorContextCleanup:
         assert mgr.context_reg.get("data").cached_generator is None
         assert mgr.context_reg.get("data").cached_value is None
         assert not mgr.context_reg.get("data").is_cached
+
+
+class TestContextOpenError:
+    @pytest.fixture(scope="class")
+    def mgr(self):
+        mgr = CommandsManager()
+
+        @mgr.context
+        def data():
+            raise ValueError("This context will always fail")
+
+        @mgr.command
+        def post(data):
+            return data
+
+        return mgr
+
+    def test_raises(self, mgr: CommandsManager):
+        with pytest.raises(ValueError):
+            mgr.exec("post")
+
+    def test_reference(self, mgr: CommandsManager):
+        mgr.close("post")
+        assert mgr.context_reg.get("data").reference_count == 0
+        mgr.close("post")
+        assert mgr.context_reg.get("data").reference_count == 0
+
+
+class TestContextCloseError:
+    @pytest.fixture(scope="class")
+    def mgr(self):
+        mgr = CommandsManager()
+
+        @mgr.context
+        def data():
+            yield "abc"
+            raise ValueError("This context will always fail")
+
+        @mgr.command
+        def post(data):
+            return data
+
+        mgr.exec("post")
+        return mgr
+
+    # @pytest.mark.parametrize("run", [1, 2])  # test close twice
+    def test_reference(self, mgr: CommandsManager):  # , run: int):
+        with pytest.raises(ValueError):
+            mgr.close("post")
+        assert mgr.context_reg.get("data").reference_count == 0
+        mgr.close("post")
+        assert mgr.context_reg.get("data").reference_count == 0

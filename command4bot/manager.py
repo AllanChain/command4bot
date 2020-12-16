@@ -130,7 +130,7 @@ class CommandsManager:
             return command(payload=payload, **func_args)
 
         for fallback_func in self.fallback_reg.all():
-            result = fallback_func(content)
+            result = fallback_func(content, **kwargs)
             if result is not None:
                 return result
         return None
@@ -179,7 +179,7 @@ class CommandsManager:
         """Decorator to register a fallback handler.
 
         The fallback handlers registered are called in order of priority,
-        with the original text input (``payload``)
+        with the original text input (``content``)
         and all other keyword parameters passed to `CommandsManager.exec`,
         until the handler returns something other than ``None``,
         when there is no command found to handle the input.
@@ -290,7 +290,7 @@ class CommandsManager:
         for command_opened in commands_opened:
             self.context_reg.update_reference(command_opened, increase=True)
 
-    def help_with_similar(self, content: str) -> str:
+    def help_with_similar(self, content: str, **kwargs) -> str:
         """Return helps with similar commands hint.
 
         This is the default fallback handler

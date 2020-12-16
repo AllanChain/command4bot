@@ -70,3 +70,39 @@ class TestMultiFallback:
 
     def test_priority(self, data_share):
         assert data_share.calls == [10, 5, 2]
+
+
+class TestFallbackKw:
+    @pytest.fixture(scope="class")
+    def mgr(self, data_share):
+        mgr = CommandsManager(config=dict(enable_default_fallback=False))
+
+        @mgr.fallback(priority=10)
+        def fallback(content, user):
+            return user
+
+        @mgr.fallback(priority=0)
+        def final_fallback(content, **kwargs):
+            return "Here!"
+
+        return mgr
+
+    @pytest.fixture(scope="class")
+    def add_bad_fallback(self, mgr: CommandsManager):
+        @mgr.fallback(priority=5)
+        def echo(content):
+            return content
+
+    def test_parameter_passed(self, mgr: CommandsManager):
+        assert mgr.exec("nothing", user="Alex") == "Alex"
+
+    def test_kw_fine(self, mgr: CommandsManager):
+        assert mgr.exec("nothing", user=None) == "Here!"
+
+    def test_nothing_passed(self, mgr: CommandsManager):
+        with pytest.raises(TypeError):
+            mgr.exec("nothing")
+
+    def test_forgot_kw(self, mgr: CommandsManager):
+        with pytest.raises(TypeError):
+            mgr.exec("nothing")

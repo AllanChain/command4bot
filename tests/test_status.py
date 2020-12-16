@@ -4,30 +4,31 @@ from command4bot import CommandsManager
 from command4bot.manager import DEFAULT_CONFIG
 
 
+@pytest.fixture(scope="class")
+def mgr():
+    mgr = CommandsManager()
+
+    @mgr.context
+    def name():
+        return "Jack"
+
+    @mgr.context
+    def haha():
+        return "Haha"
+
+    @mgr.command
+    def echo(payload, name):
+        return f"{name} says {payload}"
+
+    @mgr.command()
+    @mgr.command_reg.mark_default_closed
+    def hidden(payload, haha):
+        return f"{haha}! You found {payload}"
+
+    return mgr
+
+
 class TestOpenClose:
-    @pytest.fixture(scope="class")
-    def mgr(self):
-        mgr = CommandsManager()
-
-        @mgr.context
-        def name():
-            return "Jack"
-
-        @mgr.context
-        def haha():
-            return "Haha"
-
-        @mgr.command
-        def echo(payload, name):
-            return f"{name} says {payload}"
-
-        @mgr.command()
-        @mgr.command_reg.mark_default_closed
-        def hidden(payload, haha):
-            return f"{haha}! You found {payload}"
-
-        return mgr
-
     @pytest.fixture(scope="class")
     def close_echo(self, mgr):
         mgr.close("echo")
@@ -83,31 +84,10 @@ class TestOpenClose:
 
 
 class TestOpenCloseTwice:
-    @pytest.fixture(scope="class")
-    def mgr(self):
-        mgr = CommandsManager()
-
-        @mgr.context
-        def name():
-            return "Jack"
-
-        @mgr.context
-        def haha():
-            return "Haha"
-
-        @mgr.command
-        def echo(payload, name):
-            return f"{name} says {payload}"
-
-        @mgr.command()
-        @mgr.command_reg.mark_default_closed
-        def hidden(payload, haha):
-            return f"{haha}! You found {payload}"
-
+    @pytest.fixture(scope="class", autouse=True)
+    def setup_mgr(self, mgr):
         mgr.open("hidden")
         mgr.close("echo")
-
-        return mgr
 
     def test_open_twice(self, mgr: CommandsManager):
         mgr.open("hidden")
@@ -116,3 +96,17 @@ class TestOpenCloseTwice:
     def test_close_twice(self, mgr: CommandsManager):
         mgr.close("echo")
         assert mgr.context_reg.get("name").reference_count == 0
+
+
+class TestBatchUpdate:
+    @pytest.fixture(scope="class", autouse=True)
+    def batch_update(self, mgr):
+        mgr.batch_update_status({"echo": False, "hidden": True})
+
+    def test_status(self, mgr: CommandsManager):
+        assert mgr.exec("echo") == DEFAULT_CONFIG["text_command_closed"]
+        assert mgr.exec("hidden treasure") == "Haha! You found treasure"
+
+    def test_reference(self, mgr: CommandsManager):
+        assert mgr.context_reg.get("name").reference_count == 0
+        assert mgr.context_reg.get("haha").reference_count == 1

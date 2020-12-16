@@ -1,4 +1,4 @@
-from typing import Any, Iterable, List, Optional, Tuple, Union, overload
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union, overload
 
 try:
     from typing import TypedDict
@@ -266,10 +266,8 @@ class CommandsManager:
         """
         if not self.command_reg.get_status(name):
             return
-        command_will_close = self.command_reg.get_commands_will_close(name)
-        self.command_reg.set_status(name, False)
-        for command in command_will_close:
-            self.context_reg.update_reference(command, False)
+        for command_closed in self.command_reg.close(name):
+            self.context_reg.update_reference(command_closed, increase=False)
 
     def open(self, name: str) -> None:
         """Mark a command or group as open.
@@ -279,10 +277,18 @@ class CommandsManager:
         """
         if self.command_reg.get_status(name):
             return
-        command_will_open = self.command_reg.get_commands_will_open(name)
-        self.command_reg.set_status(name, True)
-        for command in command_will_open:
-            self.context_reg.update_reference(command, True)
+        for command_opened in self.command_reg.open(name):
+            self.context_reg.update_reference(command_opened, increase=True)
+
+    def batch_update_status(self, status_diff: Dict[str, bool]) -> None:
+        (
+            commands_closed,
+            commands_opened,
+        ) = self.command_reg.batch_update_status(status_diff)
+        for command_closed in commands_closed:
+            self.context_reg.update_reference(command_closed, increase=False)
+        for command_opened in commands_opened:
+            self.context_reg.update_reference(command_opened, increase=True)
 
     def help_with_similar(self, content: str) -> str:
         """Return helps with similar commands hint.

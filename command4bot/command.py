@@ -9,6 +9,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Tuple,
     Union,
     overload,
 )
@@ -122,8 +123,8 @@ class BaseCommandRegistry:
             self.get_status(group_name) for group_name in command.groups
         )
 
-    def get_commands_will_open(self, name: str) -> Iterable[Command]:
-        return [
+    def open(self, name: str) -> Iterable[Command]:
+        commands_opened = [
             command
             for command in self._groups[name]
             if all(
@@ -132,13 +133,30 @@ class BaseCommandRegistry:
                 if group_name != name
             )
         ]
+        self.set_status(name, True)
+        return commands_opened
 
-    def get_commands_will_close(self, name: str) -> Iterable[Command]:
-        return [
+    def close(self, name: str) -> Iterable[Command]:
+        commands_closed = [
             command
             for command in self._groups[name]
             if self.resolve_command_status(command)
         ]
+        self.set_status(name, False)
+        return commands_closed
+
+    def batch_update_status(
+        self, status_diff: Dict[str, bool]
+    ) -> Tuple[List[Command], List[Command]]:
+        to_close = [k for k, v in status_diff.items() if not v]
+        to_open = [k for k, v in status_diff.items() if v]
+        commands_closed: List[Command] = []
+        commands_opened: List[Command] = []
+        for name in to_close:
+            commands_closed.extend(self.close(name))
+        for name in to_open:
+            commands_opened.extend(self.open(name))
+        return commands_closed, commands_opened
 
 
 class CommandRegistry(BaseCommandRegistry):

@@ -22,7 +22,7 @@ class TestBasicContext:
 
         return mgr
 
-    def test_context(self, mgr):
+    def test_context(self, mgr: CommandsManager):
         assert mgr.exec("send") == "abc"
 
 
@@ -46,7 +46,7 @@ class TestGeneratorContext:
         return mgr
 
     @pytest.fixture(scope="class")
-    def open_post(self, mgr):
+    def open_post(self, mgr: CommandsManager):
         mgr.open("post")
 
     def test_not_inited_if_command_closed(

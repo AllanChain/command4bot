@@ -59,7 +59,7 @@ class TestGroupOpen:
     def open_group(self, mgr: CommandsManager):
         mgr.open("hello")
 
-    def test_default_close(self, mgr):
+    def test_default_close(self, mgr: CommandsManager):
         assert mgr.exec("hi") == DEFAULT_CONFIG["text_command_closed"]
         assert mgr.exec("aloha") == DEFAULT_CONFIG["text_command_closed"]
 

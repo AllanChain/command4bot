@@ -34,7 +34,7 @@ class TestDisableDefault:
         mgr = CommandsManager(config=dict(enable_default_fallback=False))
         return mgr
 
-    def test_exec(self, mgr):
+    def test_exec(self, mgr: CommandsManager):
         assert mgr.exec("hello") is None
 
 
@@ -62,7 +62,7 @@ class TestMultiFallback:
         return mgr
 
     @pytest.fixture(scope="class")
-    def exec_result(self, mgr):
+    def exec_result(self, mgr: CommandsManager):
         return mgr.exec("hello")
 
     def test_multi(delf, exec_result):

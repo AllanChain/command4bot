@@ -30,11 +30,11 @@ def mgr():
 
 class TestOpenClose:
     @pytest.fixture(scope="class")
-    def close_echo(self, mgr):
+    def close_echo(self, mgr: CommandsManager):
         mgr.close("echo")
 
     @pytest.fixture(scope="class")
-    def open_hidden(self, mgr):
+    def open_hidden(self, mgr: CommandsManager):
         mgr.open("hidden")
 
     def test_open_reference_count(self, mgr: CommandsManager):
@@ -85,7 +85,7 @@ class TestOpenClose:
 
 class TestOpenCloseTwice:
     @pytest.fixture(scope="class", autouse=True)
-    def setup_mgr(self, mgr):
+    def setup_mgr(self, mgr: CommandsManager):
         mgr.open("hidden")
         mgr.close("echo")
 
@@ -100,7 +100,7 @@ class TestOpenCloseTwice:
 
 class TestBatchUpdate:
     @pytest.fixture(scope="class", autouse=True)
-    def batch_update(self, mgr):
+    def batch_update(self, mgr: CommandsManager):
         mgr.batch_update_status({"echo": False, "hidden": True})
 
     def test_status(self, mgr: CommandsManager):

@@ -20,14 +20,14 @@ class TestBasicUsage:
 
         return mgr
 
-    def test_simple(self, mgr):
+    def test_simple(self, mgr: CommandsManager):
         assert mgr.exec("world") == "world"
 
-    def test_custom_args(self, mgr):
+    def test_custom_args(self, mgr: CommandsManager):
         result = mgr.exec("hello", message={"source": "source"})
         assert result == "hello, source!"
 
-    def test_fallback(self, mgr):
+    def test_fallback(self, mgr: CommandsManager):
         "This tests both two types of help and cached fallback"
         assert (
             mgr.exec("word")

@@ -110,3 +110,24 @@ class TestBatchUpdate:
     def test_reference(self, mgr: CommandsManager):
         assert mgr.context_reg.get("name").reference_count == 0
         assert mgr.context_reg.get("haha").reference_count == 1
+
+
+class TestStatusDiff:
+    @pytest.fixture(scope="class", autouse=True)
+    def batch_update(self, mgr: CommandsManager):
+        mgr.batch_update_status(
+            mgr.command_reg.calc_status_diff(  # type: ignore
+                {
+                    "echo": True,
+                    "hidden": True,
+                }
+            )
+        )
+
+    def test_status(self, mgr: CommandsManager):
+        assert mgr.exec("echo hello") == "Jack says hello"
+        assert mgr.exec("hidden treasure") == "Haha! You found treasure"
+
+    def test_reference(self, mgr: CommandsManager):
+        assert mgr.context_reg.get("name").reference_count == 1
+        assert mgr.context_reg.get("haha").reference_count == 1

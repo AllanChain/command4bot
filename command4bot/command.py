@@ -15,6 +15,16 @@ from typing import (
 )
 
 
+def calc_status_diff(
+    before: Dict[str, bool], after: Dict[str, bool]
+) -> Dict[str, bool]:
+    return {
+        k: v
+        for k, v in set(after.items()) - set(before.items())
+        if k in before or not v  # Same name different state or closed
+    }
+
+
 class Command:
     name: str
     keywords: Iterable[str]
@@ -172,3 +182,6 @@ class CommandRegistry(BaseCommandRegistry):
 
     def set_default_closed(self, name: str) -> None:
         self._status[name] = False
+
+    def calc_status_diff(self, new_status: Dict[str, bool]) -> Dict[str, bool]:
+        return calc_status_diff(self._status, new_status)

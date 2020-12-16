@@ -8,7 +8,7 @@ mgr = CommandsManager()
 class TestMethodHandler:
     @pytest.fixture(scope="class", autouse=True)
     def init(self):
-        mgr.setup(self.data)
+        mgr.context(self.data)
         mgr.command(self.tell)
         mgr.fallback(self.fallback)
 
@@ -21,7 +21,7 @@ class TestMethodHandler:
     def fallback(self, content):
         return f"unknown {content}"
 
-    def test_command_and_setup(self):
+    def test_command_and_context(self):
         assert mgr.exec("tell me") == "tell me truth"
 
     def test_fallback(self):

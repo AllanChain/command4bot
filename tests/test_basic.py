@@ -7,7 +7,7 @@ from command4bot.manager import DEFAULT_CONFIG
 class TestBasicUsage:
     @pytest.fixture(scope="class")
     def mgr(self):
-        mgr = CommandsManager(command_needs_ignore=["message"])
+        mgr = CommandsManager(command_context_ignore=["message"])
 
         @mgr.command
         def hello(message):

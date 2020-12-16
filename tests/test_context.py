@@ -3,16 +3,16 @@ import pytest
 from command4bot import CommandsManager
 
 
-class TestBasicSetup:
+class TestBasicContext:
     @pytest.fixture(scope="class")
     def mgr(self):
         mgr = CommandsManager()
 
-        @mgr.setup
+        @mgr.context
         def ws_data():
             return {"content": "abc"}
 
-        @mgr.setup()
+        @mgr.context()
         def ws_client():
             return {"send": lambda x: x}
 
@@ -22,17 +22,17 @@ class TestBasicSetup:
 
         return mgr
 
-    def test_setup(self, mgr):
+    def test_context(self, mgr):
         assert mgr.exec("send") == "abc"
 
 
-class TestGeneratorSetup:
+class TestGeneratorContext:
     @pytest.fixture(scope="class")
     def mgr(self, data_share):
         mgr = CommandsManager()
         data_share.status = None
 
-        @mgr.setup
+        @mgr.context
         def data():
             data_share.status = "pending"
             yield "abc"
@@ -53,18 +53,18 @@ class TestGeneratorSetup:
         self, mgr: CommandsManager, data_share
     ):
         assert data_share.status is None
-        assert mgr.setup_reg.get("data").cached_generator is None
-        assert mgr.setup_reg.get("data").cached_value is None
-        assert not mgr.setup_reg.get("data").is_cached
+        assert mgr.context_reg.get("data").cached_generator is None
+        assert mgr.context_reg.get("data").cached_value is None
+        assert not mgr.context_reg.get("data").is_cached
 
     def test_lazy_load(self, mgr, open_post, data_share):
         assert data_share.status is None
 
     def test_value_cached(self, mgr: CommandsManager, open_post):
         assert mgr.exec("post") == "abc"
-        assert mgr.setup_reg.get("data").cached_generator
-        assert mgr.setup_reg.get("data").cached_value
-        assert mgr.setup_reg.get("data").is_cached
+        assert mgr.context_reg.get("data").cached_generator
+        assert mgr.context_reg.get("data").cached_value
+        assert mgr.context_reg.get("data").is_cached
         assert mgr.exec("post") == "abc"  # cache properly
 
 
@@ -74,7 +74,7 @@ class TestNoCache:
         mgr = CommandsManager()
         data_share.run_count = 0
 
-        @mgr.setup(enable_cache=False)
+        @mgr.context(enable_cache=False)
         def data():
             data_share.run_count += 1
             yield data_share.run_count
@@ -87,9 +87,9 @@ class TestNoCache:
         return mgr
 
     def test_not_cached(self, mgr: CommandsManager):
-        assert not mgr.setup_reg.get("data").is_cached
-        assert mgr.setup_reg.get("data").cached_value is None
-        assert mgr.setup_reg.get("data").cached_generator is None
+        assert not mgr.context_reg.get("data").is_cached
+        assert mgr.context_reg.get("data").cached_value is None
+        assert mgr.context_reg.get("data").cached_generator is None
 
     def test_run_twice(self, mgr: CommandsManager, data_share):
         assert mgr.exec("post") == 2
@@ -102,7 +102,7 @@ class TestRunCount:
         mgr = CommandsManager()
         data_share.run_count = 0
 
-        @mgr.setup
+        @mgr.context
         def data():
             data_share.run_count += 1
             yield data_share.run_count
@@ -119,12 +119,12 @@ class TestRunCount:
         assert data_share.run_count == 1
 
 
-class TestGeneratorSetupCleanup:
+class TestGeneratorContextCleanup:
     @pytest.fixture(scope="class")
     def mgr(self, data_share):
         mgr = CommandsManager()
 
-        @mgr.setup
+        @mgr.context
         def data():
             data_share.status = "pending"
             yield "abc"
@@ -140,6 +140,6 @@ class TestGeneratorSetupCleanup:
 
     def test_cleanup(self, mgr: CommandsManager, data_share):
         assert data_share.status == "done"
-        assert mgr.setup_reg.get("data").cached_generator is None
-        assert mgr.setup_reg.get("data").cached_value is None
-        assert not mgr.setup_reg.get("data").is_cached
+        assert mgr.context_reg.get("data").cached_generator is None
+        assert mgr.context_reg.get("data").cached_value is None
+        assert not mgr.context_reg.get("data").is_cached

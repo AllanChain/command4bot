@@ -47,23 +47,23 @@ class TestDuplicate:
         e_message = e_info.value.args[0].lower()
         assert "keyword" in e_message and "kw" in e_message
 
-    def test_duplicate_setup(self, mgr: CommandsManager):
-        @mgr.setup
+    def test_duplicate_context(self, mgr: CommandsManager):
+        @mgr.context
         def setdup():
             pass
 
         with pytest.raises(ValueError) as e_info:
 
-            @mgr.setup
+            @mgr.context
             def setdup():  # NOQA
                 pass
 
         e_message = e_info.value.args[0].lower()
-        assert "setup" in e_message and "setdup" in e_message
+        assert "context" in e_message and "setdup" in e_message
 
 
 class TestNotFound:
-    def test_setup_not_found(self, mgr: CommandsManager):
+    def test_context_not_found(self, mgr: CommandsManager):
         with pytest.raises(ValueError) as e_info:
 
             @mgr.command
@@ -71,4 +71,4 @@ class TestNotFound:
                 pass
 
         e_message = e_info.value.args[0].lower()
-        assert "setup" in e_message and "world" in e_message
+        assert "context" in e_message and "world" in e_message

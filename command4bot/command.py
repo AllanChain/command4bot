@@ -18,7 +18,7 @@ class Command:
     name: str
     keywords: Iterable[str]
     groups: Iterable[str]
-    needs: Iterable[str]
+    contexts: Iterable[str]
     parameters: Iterable[str]
 
     def __init__(
@@ -27,7 +27,7 @@ class Command:
         keywords: Iterable[str],
         groups: Iterable[str],
         parameter_ignore: Iterable[str],
-        needs_ignore: Iterable[str],
+        context_ignore: Iterable[str],
         payload_parameter: str,
     ) -> None:
         self.command_func = command_func
@@ -35,7 +35,7 @@ class Command:
         self.keywords = keywords
         self.groups = groups
         self.parameters = []
-        self.needs = []
+        self.contexts = []
 
         if command_func.__doc__ is None:
             self.help = "/".join(self.keywords) + " " + command_func.__name__
@@ -43,13 +43,13 @@ class Command:
             self.help = dedent(command_func.__doc__).strip()
         self.brief_help = "- " + self.help.split("\n", 1)[0]
 
-        needs_ignore = [*needs_ignore, payload_parameter]
+        context_ignore = [*context_ignore, payload_parameter]
 
         for parameter in signature(command_func).parameters:
             if parameter not in parameter_ignore:
                 self.parameters.append(parameter)
-                if parameter not in needs_ignore:
-                    self.needs.append(parameter)
+                if parameter not in context_ignore:
+                    self.contexts.append(parameter)
 
     def __call__(self, **kwargs: Any) -> Any:
         return self.command_func(

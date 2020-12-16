@@ -6,8 +6,8 @@ except ImportError:
     from typing_extensions import TypedDict
 
 from .command import BaseCommandRegistry, Command, CommandRegistry
+from .context import Context, ContextRegistry
 from .fallback import FallbackRegistry
-from .setup import Setup, SetupRegistry
 from .typing_ext import Decorator, F
 
 
@@ -55,9 +55,9 @@ class Config(TypedDict):
 
     Default to ``("self",)``. The manager will never try to pass these
     parameters to the handler"""
-    command_needs_ignore: Iterable[str]
-    """Do not regard these parameters of command handlers as setup names
-    (a.k.a dependencies, needs)
+    command_context_ignore: Iterable[str]
+    """Do not regard these parameters of command handlers as context names
+    (a.k.a dependencies)
 
 
     Default to ``()``. These parameters are to receive extra context
@@ -74,26 +74,26 @@ DEFAULT_CONFIG = Config(
     text_possible_command="Did you misspell it? Possible commands are:",
     text_command_closed="Sorry, this command is currently disabled.",
     command_parameter_ignore=("self",),
-    command_needs_ignore=(),
+    command_context_ignore=(),
     command_payload_parameter="payload",
 )
 
 
 class CommandsManager:
-    setup_reg: SetupRegistry
+    context_reg: ContextRegistry
     command_reg: BaseCommandRegistry
     fallback_reg: FallbackRegistry
     config: Config
 
     def __init__(
         self,
-        setup_reg: SetupRegistry = None,
+        context_reg: ContextRegistry = None,
         command_reg: BaseCommandRegistry = None,
         fallback_reg: FallbackRegistry = None,
         config: Optional[Config] = None,
         **kwargs,
     ):
-        self.setup_reg = setup_reg or SetupRegistry()
+        self.context_reg = context_reg or ContextRegistry()
         self.command_reg = command_reg or CommandRegistry()
         self.fallback_reg = fallback_reg or FallbackRegistry()
 
@@ -123,8 +123,8 @@ class CommandsManager:
             func_args = kwargs.copy()
             func_args.update(
                 {
-                    needed: self.setup_reg.get(needed).value
-                    for needed in command.needs
+                    context_name: self.context_reg.get(context_name).value
+                    for context_name in command.contexts
                 }
             )
             return command(payload=payload, **func_args)
@@ -136,31 +136,31 @@ class CommandsManager:
         return None
 
     @overload
-    def setup(self, setup_func: F) -> F:
+    def context(self, context_func: F) -> F:
         ...
 
     @overload
-    def setup(
-        self, setup_func: None = ..., *, enable_cache: bool = ...
+    def context(
+        self, context_func: None = ..., *, enable_cache: bool = ...
     ) -> Decorator:
         ...
 
-    def setup(
-        self, setup_func: Optional[F] = None, *, enable_cache: bool = True
+    def context(
+        self, context_func: Optional[F] = None, *, enable_cache: bool = True
     ) -> Union[F, Decorator]:
-        """Decorator to register a setup (a.k.a. ommand dependency).
+        """Decorator to register a context (a.k.a. command dependency).
 
         This decorator can be used with or without parentheses.
         """
 
-        def deco(setup_func: F) -> F:
-            self.setup_reg.register(
-                Setup(setup_func, enable_cache=enable_cache)
+        def deco(context_func: F) -> F:
+            self.context_reg.register(
+                Context(context_func, enable_cache=enable_cache)
             )
-            return setup_func
+            return context_func
 
-        if setup_func:
-            return deco(setup_func)
+        if context_func:
+            return deco(context_func)
         return deco
 
     @overload
@@ -245,13 +245,13 @@ class CommandsManager:
                 keywords or [command_func.__name__],
                 groups or [],
                 parameter_ignore=self.config["command_parameter_ignore"],
-                needs_ignore=self.config["command_needs_ignore"],
+                context_ignore=self.config["command_context_ignore"],
                 payload_parameter=self.config["command_payload_parameter"],
             )
             self.command_reg.register(command)
-            self.setup_reg.check_command(command)
+            self.context_reg.check_command(command)
             if self.command_reg.resolve_command_status(command):
-                self.setup_reg.update_reference(command)
+                self.context_reg.update_reference(command)
             return command_func
 
         if command_func:
@@ -269,7 +269,7 @@ class CommandsManager:
         command_will_close = self.command_reg.get_commands_will_close(name)
         self.command_reg.set_status(name, False)
         for command in command_will_close:
-            self.setup_reg.update_reference(command, False)
+            self.context_reg.update_reference(command, False)
 
     def open(self, name: str) -> None:
         """Mark a command or group as open.
@@ -282,7 +282,7 @@ class CommandsManager:
         command_will_open = self.command_reg.get_commands_will_open(name)
         self.command_reg.set_status(name, True)
         for command in command_will_open:
-            self.setup_reg.update_reference(command, True)
+            self.context_reg.update_reference(command, True)
 
     def help_with_similar(self, content: str) -> str:
         """Return helps with similar commands hint.

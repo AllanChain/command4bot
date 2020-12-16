@@ -5,31 +5,31 @@ from .command import Command
 from .typing_ext import F
 
 
-class Setup:
+class Context:
     name: str
     is_cached: bool
     cached_value: Any
     cached_generator: Optional[Generator]
     reference_count: int
     enable_cache: bool
-    setup_func: Callable
+    context_func: Callable
 
-    def __init__(self, setup_func: F, enable_cache: bool = True) -> None:
+    def __init__(self, context_func: F, enable_cache: bool = True) -> None:
         self.is_cached = False
         self.cached_value = None
         self.cached_generator = None
         self.reference_count = 0
         self.enable_cache = enable_cache
         # python/mypy#2427
-        self.setup_func = setup_func  # type: ignore
-        self.name = setup_func.__name__
+        self.context_func = context_func  # type: ignore
+        self.name = context_func.__name__
 
     @property
     def value(self) -> Any:
         if self.is_cached:
             return self.cached_value
 
-        result = self.setup_func()
+        result = self.context_func()
 
         if isgenerator(result):
             if self.enable_cache:
@@ -54,33 +54,35 @@ class Setup:
             self.is_cached = False
 
 
-class SetupRegistry:
-    _reg: Dict[str, Setup]
+class ContextRegistry:
+    _reg: Dict[str, Context]
 
     def __init__(self):
         self._reg = {}
 
-    def register(self, setup: Setup) -> None:
-        if setup.name in self._reg:
-            raise ValueError(f'Setup name "{setup.name}" duplicate')
+    def register(self, context: Context) -> None:
+        if context.name in self._reg:
+            raise ValueError(f'Context name "{context.name}" duplicate')
 
-        self._reg[setup.name] = setup
+        self._reg[context.name] = context
 
-    def get(self, setup_name: str) -> Setup:
-        return self._reg[setup_name]
+    def get(self, context_name: str) -> Context:
+        return self._reg[context_name]
 
     def check_command(self, command: Command) -> None:
-        for needed in command.needs:
-            if needed not in self._reg:
-                raise ValueError(f'Unrecognized setup name: "{needed}"')
+        for context_name in command.contexts:
+            if context_name not in self._reg:
+                raise ValueError(
+                    f'Unrecognized context name: "{context_name}"'
+                )
 
     def update_reference(self, command: Command, increase: bool = True):
-        for needed in command.needs:
-            setup = self._reg[needed]
-            setup.reference_count += 1 if increase else -1
-            if setup.reference_count == 0:
-                setup.cleanup()
-            elif setup.reference_count < 0:  # pragma: no cover
+        for context_name in command.contexts:
+            context = self._reg[context_name]
+            context.reference_count += 1 if increase else -1
+            if context.reference_count == 0:
+                context.cleanup()
+            elif context.reference_count < 0:  # pragma: no cover
                 raise ValueError(
-                    "Setup reference less than zero." "Race condition?"
+                    "Context reference less than zero." "Race condition?"
                 )

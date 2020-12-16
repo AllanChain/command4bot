@@ -52,7 +52,7 @@ If the command is closed, the command handler will never be called until you ope
 
 By default, the command is open after registration.
 
-Setup (Command Dependency)
+Context (Command Dependency)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Command dependencies is trivial to manage if the command is always open.
@@ -61,7 +61,7 @@ For example, setup web socket connection if any command needs, and close the con
 
 .. code-block:: python
 
-    @mgr.setup
+    @mgr.context
     def ws():
         ws_client = WSClient('localhost:8888')
         yield ws_client

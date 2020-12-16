@@ -48,7 +48,7 @@ mgr.exec('greet John')  # 'Hello, John!'
 
 - Register command with a simple decorator
 - Managing command open and closed status with ease
-- Automatically manage command's dependency (a.k.a. `setup`) with its status
+- Automatically manage command's dependency (a.k.a. `context`) with its status
 - Fallback handlers if no command found
 
 ## Documentation

@@ -4,12 +4,14 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+      - '**.rst'
   push:
     branches:
       - master
       - ci/*
     paths-ignore:
       - '**.md'
+      - '**.rst'
 
 jobs:
   test:

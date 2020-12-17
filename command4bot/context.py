@@ -84,5 +84,6 @@ class ContextRegistry:
                 context.cleanup()
             elif context.reference_count < 0:  # pragma: no cover
                 raise ValueError(
-                    "Context reference less than zero." "Race condition?"
+                    "Context reference less than zero. "
+                    "Are you using your own command registry class?"
                 )

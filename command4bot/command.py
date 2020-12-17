@@ -121,7 +121,13 @@ class BaseCommandRegistry:
         self, *args: Union[str, Callable]
     ) -> Optional[Callable]:
         for arg in args:
-            self.set_default_closed(arg.__name__ if callable(arg) else arg)
+            name = arg.__name__ if callable(arg) else arg
+            if self.get(name):
+                raise ValueError(
+                    f"Cannot mark {name} as default closed because "
+                    "the command already registered"
+                )
+            self.set_default_closed(name)
         if args and callable(args[0]):
             return args[0]
         return None

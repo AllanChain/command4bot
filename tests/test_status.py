@@ -98,6 +98,20 @@ class TestOpenCloseTwice:
         assert mgr.context_reg.get("name").reference_count == 0
 
 
+def test_mark_default_close_after_register():
+    mgr = CommandsManager()
+
+    with pytest.raises(ValueError) as e_info:
+
+        @mgr.command_reg.mark_default_closed
+        @mgr.command
+        def echo(payload):
+            return payload
+
+    e_message = e_info.value.args[0].lower()
+    assert "mark" in e_message
+
+
 class TestBatchUpdate:
     @pytest.fixture(scope="class", autouse=True)
     def batch_update(self, mgr: CommandsManager):

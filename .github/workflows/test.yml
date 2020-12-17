@@ -46,6 +46,7 @@ jobs:
       - name: Check Venv Health
         id: check-venv
         if: steps.cache.outputs.cache-hit == 'true'
+        shell: bash
         run: |
           if poetry run python -c 'import pytest'; then
             echo "::set-output name=healthy::true"

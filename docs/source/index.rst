@@ -13,6 +13,7 @@ Welcome to command4bot's documentation!
    start
    status
    api
+   configuration
 
 
 Indices and tables

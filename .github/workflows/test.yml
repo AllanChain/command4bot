@@ -4,12 +4,14 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+      - '**.rst'
   push:
     branches:
       - master
-      - ci
+      - ci/*
     paths-ignore:
       - '**.md'
+      - '**.rst'
 
 jobs:
   test:
@@ -35,15 +37,25 @@ jobs:
           echo "::set-output name=dir::$(poetry config cache-dir)"
       - name: Cache Poetry
         uses: actions/cache@v2
-        if: matrix.os != 'windows-latest'
         id: cache
         with:
           path: ${{ steps.poetry-cache.outputs.dir }}
           key: poetry-cache-v1-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('poetry.lock') }}
           restore-keys: |
             poetry-cache-v1-
+      - name: Check Venv Health
+        id: check-venv
+        if: steps.cache.outputs.cache-hit == 'true'
+        shell: bash
+        run: |
+          if poetry run python -c 'import pytest'; then
+            echo "::set-output name=healthy::true"
+          else
+            poetry env remove python
+            echo "::set-output name=healthy::false"
+          fi
       - name: Install Requirements
-        if: matrix.os == 'windows-latest' || steps.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true' || steps.check-venv.outputs.healthy == 'false'
         run: poetry install --no-root
       - name: Run Tests
         if: "! (matrix.os == 'ubuntu-latest' && matrix.python-version == '3.8')"

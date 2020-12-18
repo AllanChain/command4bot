@@ -42,7 +42,9 @@ jobs:
           path: ${{ steps.poetry-cache.outputs.dir }}
           key: poetry-cache-v1-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('poetry.lock') }}
           restore-keys: |
-            poetry-cache-v1-
+            poetry-cache-v1-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.poetry-version }}
+            poetry-cache-v1-${{ matrix.os }}-${{ matrix.python-version }}
+            poetry-cache-v1-${{ matrix.os }}
       - name: Check Venv And Install Requirements
         shell: bash
         run: |

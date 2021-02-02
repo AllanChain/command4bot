@@ -1,3 +1,4 @@
+import threading
 from inspect import isgenerator
 from typing import Any, Callable, Dict, Generator, Optional
 
@@ -7,51 +8,55 @@ from .typing_ext import F
 
 class Context:
     name: str
+    context_func: Callable
+    enable_cache: bool
     is_cached: bool
     cached_value: Any
     cached_generator: Optional[Generator]
     reference_count: int
-    enable_cache: bool
-    context_func: Callable
 
     def __init__(self, context_func: F, enable_cache: bool = True) -> None:
+        self.name = context_func.__name__
+        # python/mypy#2427
+        self.context_func = context_func  # type: ignore
+        self.enable_cache = enable_cache
+
         self.is_cached = False
         self.cached_value = None
         self.cached_generator = None
         self.reference_count = 0
-        self.enable_cache = enable_cache
-        # python/mypy#2427
-        self.context_func = context_func  # type: ignore
-        self.name = context_func.__name__
+        self.__lock = threading.Lock()
 
     @property
     def value(self) -> Any:
-        if self.is_cached:
-            return self.cached_value
+        with self.__lock:
+            if self.is_cached:
+                return self.cached_value
 
-        result = self.context_func()
+            result = self.context_func()
 
-        if isgenerator(result):
+            if isgenerator(result):
+                if self.enable_cache:
+                    self.cached_generator = result
+                result = next(result)
+
             if self.enable_cache:
-                self.cached_generator = result
-            result = next(result)
+                self.is_cached = True
+                self.cached_value = result
 
-        if self.enable_cache:
-            self.is_cached = True
-            self.cached_value = result
-
-        return result
+            return result
 
     def cleanup(self) -> None:
-        if self.is_cached:
-            if self.cached_generator is not None:
-                try:
-                    next(self.cached_generator)
-                except StopIteration:
-                    pass
-                self.cached_generator = None
-            self.cached_value = None
-            self.is_cached = False
+        with self.__lock:
+            if self.is_cached:
+                if self.cached_generator is not None:
+                    try:
+                        next(self.cached_generator)
+                    except StopIteration:
+                        pass
+                    self.cached_generator = None
+                self.cached_value = None
+                self.is_cached = False
 
 
 class ContextRegistry:

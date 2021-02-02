@@ -1,3 +1,4 @@
+import threading
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union, overload
 
 try:
@@ -31,6 +32,7 @@ class Config(TypedDict):
 
     The default fallback handler returns similar command help
     or a general response"""
+
     text_general_response: str
     """For default fallback handler :meth:`Command4bot.help_with_similar`.
 
@@ -38,6 +40,7 @@ class Config(TypedDict):
 
     What to return if neither exact nor similar command handlers found
     for the input"""
+
     text_possible_command: str
     """For default fallback handler :meth:`Command4bot.help_with_similar`.
 
@@ -45,23 +48,26 @@ class Config(TypedDict):
 
     What to say before a list of command helps if only similar command
     handlers foundfor the input"""
+
     text_command_closed: str
     """What to return if target command handler is closed.
 
     Default to ``"Sorry, this command is currently disabled."``"""
+
     command_parameter_ignore: Iterable[str]
     """Ignore these parameters of command handlers when constructing keyword
     arguments to pass
 
     Default to ``("self",)``. The manager will never try to pass these
     parameters to the handler"""
+
     command_context_ignore: Iterable[str]
     """Do not regard these parameters of command handlers as context names
     (a.k.a dependencies)
 
-
     Default to ``()``. These parameters are to receive extra context
     passed to :meth:`CommandsManager.exec`"""
+
     command_payload_parameter: str
     """The payload parameter name of command handlers
 
@@ -104,6 +110,8 @@ class CommandsManager:
             self.config.update(config)  # type: ignore
         if self.config["enable_default_fallback"]:
             self.fallback_reg.register(self.help_with_similar, priority=-1)
+
+        self.__status_lock = threading.Lock()
 
     def exec(self, content: str, **kwargs) -> Any:
         """Execute given text input ``content``
@@ -264,10 +272,13 @@ class CommandsManager:
         :param name: The name of the command or group to close.
         :type name: str
         """
-        if not self.command_reg.get_status(name):
-            return
-        for command_closed in self.command_reg.close(name):
-            self.context_reg.update_reference(command_closed, increase=False)
+        with self.__status_lock:
+            if not self.command_reg.get_status(name):
+                return
+            for command_closed in self.command_reg.close(name):
+                self.context_reg.update_reference(
+                    command_closed, increase=False
+                )
 
     def open(self, name: str) -> None:
         """Mark a command or group as open.
@@ -275,20 +286,28 @@ class CommandsManager:
         :param name: The name of the command or group to open.
         :type name: str
         """
-        if self.command_reg.get_status(name):
-            return
-        for command_opened in self.command_reg.open(name):
-            self.context_reg.update_reference(command_opened, increase=True)
+        with self.__status_lock:
+            if self.command_reg.get_status(name):
+                return
+            for command_opened in self.command_reg.open(name):
+                self.context_reg.update_reference(
+                    command_opened, increase=True
+                )
 
     def batch_update_status(self, status_diff: Dict[str, bool]) -> None:
-        (
-            commands_closed,
-            commands_opened,
-        ) = self.command_reg.batch_update_status(status_diff)
-        for command_closed in commands_closed:
-            self.context_reg.update_reference(command_closed, increase=False)
-        for command_opened in commands_opened:
-            self.context_reg.update_reference(command_opened, increase=True)
+        with self.__status_lock:
+            (
+                commands_closed,
+                commands_opened,
+            ) = self.command_reg.batch_update_status(status_diff)
+            for command_closed in commands_closed:
+                self.context_reg.update_reference(
+                    command_closed, increase=False
+                )
+            for command_opened in commands_opened:
+                self.context_reg.update_reference(
+                    command_opened, increase=True
+                )
 
     def help_with_similar(self, content: str, **kwargs) -> str:
         """Return helps with similar commands hint.

@@ -12,8 +12,8 @@ Welcome to command4bot's documentation!
 
    start
    status
-   api
    configuration
+   api
 
 
 Indices and tables

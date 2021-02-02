@@ -5,3 +5,18 @@ API Reference
 
 .. autoclass:: CommandsManager
    :members:
+
+.. autoclass:: Command
+   :members:
+
+.. autoclass:: CommandRegistry
+   :members:
+
+.. autoclass:: Context
+   :members:
+
+.. autoclass:: ContextRegistry
+   :members:
+
+.. autoclass:: FallbackRegistry
+   :members:

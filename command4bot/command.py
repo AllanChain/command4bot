@@ -18,6 +18,15 @@ from typing import (
 def calc_status_diff(
     before: Dict[str, bool], after: Dict[str, bool]
 ) -> Dict[str, bool]:
+    """Calculate two status diff, which ones are changed.
+
+    :param before: Status before
+    :type before: Dict[str, bool]
+    :param after: Status after
+    :type after: Dict[str, bool]
+    :return: Status diff
+    :rtype: Dict[str, bool]
+    """
     return {
         k: v
         for k, v in set(after.items()) - set(before.items())
@@ -41,6 +50,29 @@ class Command:
         context_ignore: Iterable[str],
         payload_parameter: str,
     ) -> None:
+        """Create a Command
+
+        :param command_func: Command handler
+        :type command_func: Callable
+        :param keywords: Keywords for the command
+        :type keywords: Iterable[str]
+        :param groups: Groups the command belongs to
+        :type groups: Iterable[str]
+        :param parameter_ignore:
+            Ignore these parameters of command handlers
+            when constructing keyword arguments to pass.
+
+            See also :attr:`Config.command_parameter_ignore`
+        :type parameter_ignore: Iterable[str]
+        :param context_ignore:
+            Do not regard these parameters of command handlers
+            as context names.
+
+            See also :attr:`Config.command_context_ignore`
+        :type context_ignore: Iterable[str]
+        :param payload_parameter: [description]
+        :type payload_parameter: str
+        """
         self.command_func = command_func
         self.name = command_func.__name__
         self.keywords = keywords

@@ -66,15 +66,34 @@ class ContextRegistry:
         self._reg = {}
 
     def register(self, context: Context) -> None:
+        """Add context into registry
+
+        :param context: The context to add
+        :type context: Context
+        :raises ValueError: If context name duplicate
+        """
         if context.name in self._reg:
             raise ValueError(f'Context name "{context.name}" duplicate')
 
         self._reg[context.name] = context
 
     def get(self, context_name: str) -> Context:
+        """Get context by name from registry
+
+        :param context_name: Name of the context
+        :type context_name: str
+        :return: context
+        :rtype: Context
+        """
         return self._reg[context_name]
 
     def check_command(self, command: Command) -> None:
+        """Check whether command has unregistered context
+
+        :param command: command to check
+        :type command: Command
+        :raises ValueError: Unrecognized context name: "{context_name}"
+        """
         for context_name in command.contexts:
             if context_name not in self._reg:
                 raise ValueError(
@@ -82,6 +101,14 @@ class ContextRegistry:
                 )
 
     def update_reference(self, command: Command, increase: bool = True):
+        """Update references of contexts from a command
+
+        :param command: The command of which contexts to update
+        :type command: Command
+        :param increase: Increase reference or decrease, defaults to True
+        :type increase: bool, optional
+        :raises ValueError: When :attr:``reference_count`` reaches negtive
+        """
         for context_name in command.contexts:
             context = self._reg[context_name]
             context.reference_count += 1 if increase else -1

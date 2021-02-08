@@ -165,6 +165,13 @@ class BaseCommandRegistry:
         return None
 
     def resolve_command_status(self, command: Command) -> bool:
+        """Resolve command status from the command itself and its groups
+
+        :param command: The command to resolve status
+        :type command: Command
+        :return: Status, ``True`` for open and ``False`` for closed
+        :rtype: bool
+        """
         if not self.get_status(command.name):
             return False
         return all(

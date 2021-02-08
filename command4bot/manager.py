@@ -73,6 +73,11 @@ class Config(TypedDict):
 
     Default to ``"payload"``"""
 
+    command_case_sensitive: bool
+    """Whether command registration and invoking case sensitive
+
+    Default to ``True``"""
+
 
 DEFAULT_CONFIG = Config(
     enable_default_fallback=True,
@@ -82,6 +87,7 @@ DEFAULT_CONFIG = Config(
     command_parameter_ignore=("self",),
     command_context_ignore=(),
     command_payload_parameter="payload",
+    command_case_sensitive=True,
 )
 
 
@@ -122,6 +128,8 @@ class CommandsManager:
         :rtype: Any
         """
         keyword, payload = split_keyword(content)
+        if not self.config["command_case_sensitive"]:
+            keyword = keyword.lower()
         command = self.command_reg.get(keyword)
         if command is not None:
             # checking if command is closed
@@ -250,7 +258,12 @@ class CommandsManager:
         def deco(command_func: F) -> F:
             command = Command(
                 command_func,
-                keywords or [command_func.__name__],
+                keywords
+                or (
+                    [command_func.__name__]
+                    if self.config["command_case_sensitive"]
+                    else [command_func.__name__.lower()]
+                ),
                 groups or [],
                 parameter_ignore=self.config["command_parameter_ignore"],
                 context_ignore=self.config["command_context_ignore"],
